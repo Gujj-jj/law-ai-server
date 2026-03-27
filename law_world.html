@@ -1,0 +1,2411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>法视界 · 法治在线服务平台</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+:root {
+  --main: #d92525;
+  --main-dark: #b81a1a;
+  --light: #fff2f2;
+  --gray: #f5f5f5;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Microsoft YaHei", sans-serif;
+}
+body {
+  background: #fff;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+a {
+  text-decoration: none;
+  color: inherit;
+}
+.nav {
+  background: var(--main-dark);
+  color: #fff;
+  padding: 16px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+.menu a {
+  color: #fff;
+  margin-left: 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.page {
+  display: none;
+  padding-bottom: 40px;
+  flex: 1;
+}
+.page.active {
+  display: block;
+  animation: fade 0.4s;
+}
+.sub-page {
+  display: none;
+  padding-bottom: 40px;
+  flex: 1;
+}
+.sub-page.active {
+  display: block;
+}
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* 轮播 - 红色背景，仅显示书名 */
+.swiper {
+  width: 100%;
+  height: 360px;
+  background: var(--main);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  opacity: 0;
+  transition: 0.6s;
+  text-align: center;
+  padding: 20px;
+  background: rgba(0,0,0,0.1);
+  backdrop-filter: blur(2px);
+}
+.slide.active {
+  opacity: 1;
+}
+/* 书籍封面通用红色样式 */
+.book-cover {
+  width: 220px;
+  height: 280px;
+  background: linear-gradient(145deg, #b31b1b, #8b0000);
+  border-radius: 8px 12px 12px 8px;
+  box-shadow: 8px 8px 20px rgba(0,0,0,0.6), 2px 0 0 #f5c542 inset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  line-height: 1.5;
+  border-left: 6px solid #f5c542;
+  position: relative;
+  transition: transform 0.3s;
+  color: #ffd700;
+}
+.book-cover:hover {
+  transform: scale(1.02);
+}
+.book-cover .book-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 2px 2px 0 #4a0000;
+  word-break: break-word;
+}
+.slide > div:last-child {
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  background: rgba(185, 28, 28, 0.9);
+  padding: 8px 30px;
+  border-radius: 40px;
+  letter-spacing: 2px;
+}
+.banner-text {
+  text-align: center;
+  padding: 20px;
+  background: var(--light);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.title {
+  text-align: center;
+  margin: 30px 0 20px;
+  font-size: 22px;
+  color: var(--main-dark);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 0 5%;
+}
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+  transition: 0.3s;
+}
+.card:hover {
+  transform: translateY(-4px);
+  background: var(--light);
+}
+.card h3 {
+  color: var(--main);
+  margin-bottom: 6px;
+  font-size: 16px;
+}
+.card p {
+  font-size: 13px;
+  color: #666;
+}
+.list-item {
+  background: #fff;
+  padding: 16px 20px;
+  margin: 8px 5%;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+.list-item a, .list-item span.clickable {
+  color: var(--main);
+  font-weight: bold;
+  cursor: pointer;
+}
+.news-item {
+  background: #fff;
+  padding: 14px 20px;
+  margin: 8px 5%;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+.news-item h4 {
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+.news-item p {
+  font-size: 12px;
+  color: #666;
+}
+/* AI 聊天区 */
+.ai-box {
+  height: 500px;
+  background: #f9f9f9;
+  margin: 10px 5%;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ai-head {
+  background: var(--main);
+  color: #fff;
+  padding: 14px;
+  text-align: center;
+  font-weight: bold;
+}
+.ai-body {
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+}
+.ai-input {
+  border-top: 1px solid #eee;
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+}
+.ai-input input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+}
+.ai-input button {
+  background: var(--main);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 0 16px;
+  cursor: pointer;
+}
+.msg {
+  margin: 10px 0;
+  max-width: 75%;
+  line-height: 1.5;
+}
+.msg.you {
+  background: var(--main);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 14px 14px 0 14px;
+  margin-left: auto;
+}
+.msg.bot {
+  background: #fff;
+  padding: 10px 14px;
+  border-radius: 14px 14px 14px 0;
+  border: 1px solid #eee;
+}
+/* 聊天律师界面 */
+.chat-lawyer-box {
+  height: 500px;
+  background: #f9f9f9;
+  margin: 10px 5%;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.chat-lawyer-head {
+  background: var(--main);
+  color: #fff;
+  padding: 14px;
+  text-align: center;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+.chat-lawyer-head span {
+  font-size: 16px;
+}
+.chat-lawyer-body {
+  flex: 1;
+  padding: 14px;
+  overflow-y: auto;
+  background: #f0f2f5;
+}
+.chat-lawyer-footer {
+  border-top: 1px solid #eee;
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  background: white;
+}
+.chat-lawyer-footer input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  outline: none;
+}
+.chat-lawyer-footer button {
+  background: var(--main);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 0 16px;
+  cursor: pointer;
+}
+/* 预约律师列表页 */
+.lawyer-category-item {
+  background: #fff;
+  padding: 16px 20px;
+  margin: 8px 5%;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+.lawyer-category-item span:last-child {
+  color: var(--main);
+  font-weight: bold;
+}
+/* 律师详情页 */
+.lawyer-detail-card {
+  background: #fff;
+  margin: 10px 5%;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.lawyer-detail-card h3 {
+  color: var(--main-dark);
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+.lawyer-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.lawyer-info-item:last-child {
+  border-bottom: none;
+}
+.call-btn {
+  background: var(--main);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+}
+/* 预约律师弹窗 */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal.show {
+  display: flex;
+}
+.modal-box {
+  background: #fff;
+  width: 90%;
+  max-width: 360px;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.modal-box h3 {
+  margin-bottom: 14px;
+  color: var(--main-dark);
+}
+.lawyer-info {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 15px;
+}
+.lawyer-info .name {
+  font-weight: bold;
+}
+.lawyer-info .desc {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+.btn-bar {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.btn-bar button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+.btn-ok {
+  background: var(--main);
+  color: #fff;
+}
+.btn-close {
+  background: #eee;
+}
+/* 文书模板详情页 */
+.template-content {
+  background: #fff;
+  margin: 10px 5%;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  line-height: 1.8;
+}
+.template-content pre {
+  white-space: pre-wrap;
+  font-family: "Microsoft YaHei", sans-serif;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  font-size: 14px;
+}
+/* 用户中心 */
+.user-info {
+  padding: 20px 5%;
+  text-align: center;
+}
+.user-info img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--light);
+  margin-bottom: 10px;
+}
+.user-info h3 {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+.user-info p {
+  font-size: 13px;
+  color: #666;
+}
+.user-menu {
+  padding: 0 5%;
+}
+.btn-checkin {
+  background: var(--main);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 30px;
+  margin: 10px auto;
+  display: block;
+  font-size: 15px;
+  cursor: pointer;
+}
+.back-link {
+  padding: 12px 5%;
+  background: var(--light);
+  margin-bottom: 10px;
+  cursor: pointer;
+  color: var(--main-dark);
+  font-weight: bold;
+}
+/* 意见反馈子页面 */
+.feedback-box {
+  margin: 20px 5%;
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 20px;
+}
+.feedback-box textarea {
+  width: 100%;
+  height: 150px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  resize: vertical;
+  font-size: 14px;
+}
+.feedback-box button {
+  background: var(--main);
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 30px;
+  margin-top: 15px;
+  width: 100%;
+  font-size: 16px;
+  cursor: pointer;
+}
+/* 底部红色免责横幅 */
+.footer-disclaimer {
+  background: var(--main-dark);
+  color: #fff;
+  text-align: center;
+  padding: 18px 5%;
+  font-size: 15px;
+  border-top: 4px solid #ffd700;
+  margin-top: 30px;
+  line-height: 1.6;
+  box-shadow: 0 -5px 10px rgba(0,0,0,0.1);
+}
+.footer-disclaimer .disclaimer-title {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.footer-disclaimer .disclaimer-text {
+  opacity: 0.95;
+  font-size: 14px;
+}
+.footer-disclaimer .separator {
+  margin: 0 10px;
+  color: #ffd700;
+}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="logo">法视界</div>
+  <div class="menu">
+    <a onclick="go('home')">首页</a>
+    <a onclick="go('service')">服务</a>
+    <a onclick="go('ai')">AI顾问</a>
+    <a onclick="go('laws')">法律法规</a>
+    <a onclick="go('user')">我的</a>
+  </div>
+</div>
+
+<!-- 首页 - 红色背景轮播，仅显示书名 -->
+<div class="page active" id="home">
+  <div class="swiper">
+    <div class="slide active">
+      <div class="book-cover">
+        <div class="book-title">中华人民共和国宪法</div>
+      </div>
+      <div>中华人民共和国宪法</div>
+    </div>
+    <div class="slide">
+      <div class="book-cover">
+        <div class="book-title">中华人民共和国刑法</div>
+      </div>
+      <div>中华人民共和国刑法</div>
+    </div>
+  </div>
+  <div class="banner-text">弘扬法治精神，提供法律支援<br>免费法律咨询、法律知识学习、文书指导与参考<br>守护公平正义，让法律触手可及</div>
+
+  <h2 class="title">平台服务</h2>
+  <div class="grid">
+    <div class="card" onclick="showAskPage()">
+      <h3>免费法律咨询</h3>
+      <p>分类咨询 · 在线律师聊天</p>
+    </div>
+    <div class="card" onclick="go('laws')">
+      <h3>法律知识学习</h3>
+      <p>民法典等全法律阅读</p>
+    </div>
+    <div class="card" onclick="go('paper')">
+      <h3>法律文书指导</h3>
+      <p>模板+专家在线解答</p>
+    </div>
+    <div class="card" onclick="showLawyerCategory()">
+      <h3>在线预约律师</h3>
+      <p>一对一 · 预约面谈</p>
+    </div>
+  </div>
+</div>
+
+<!-- 服务页面 -->
+<div class="page" id="service">
+  <h2 class="title">官方服务入口</h2>
+  <div class="list-item"><span>国家法律法规数据库</span><a href="https://flk.npc.gov.cn" target="_blank">访问</a></div>
+  <div class="list-item"><span>中华人民共和国司法部</span><a href="http://www.moj.gov.cn" target="_blank">访问</a></div>
+  <div class="list-item"><span>中国政府网</span><a href="http://www.gov.cn" target="_blank">访问</a></div>
+  <div class="list-item"><span>最高人民法院</span><a href="https://www.court.gov.cn" target="_blank">访问</a></div>
+  <div class="list-item"><span>最高人民检察院</span><a href="https://www.spp.gov.cn" target="_blank">访问</a></div>
+  <h2 class="title">法治新闻 · 近期热点</h2>
+  <div class="news-item"><h4>2026年法治建设工作要点发布</h4><p>重点推进全民普法，加强基层法律服务覆盖，保障公民基本权利。</p></div>
+  <div class="news-item"><h4>民法典实施成效显著，民生保障更加有力</h4><p>高空抛物、居住权、离婚冷静期等条款持续落地见效。</p></div>
+  <div class="news-item"><h4>全国开展网络普法专项行动</h4><p>严厉打击网络谣言，保护个人信息，维护清朗网络空间。</p></div>
+  <div class="news-item"><h4>劳动权益保护再升级，新法保障劳动者权益</h4><p>加班工资、社保缴纳、试用期规定进一步规范。</p></div>
+</div>
+
+<!-- AI顾问 -->
+<div class="page" id="ai">
+  <h2 class="title">AI法律智能顾问</h2>
+  <div class="ai-box">
+    <div class="ai-head">AI法律助手</div>
+    <div class="ai-body" id="chatBody">
+      <div class="msg bot">你好，我是AI法律助手。你可以问我如“交通事故怎么办”“诽谤罪”等问题，我会分步骤引导你～</div>
+    </div>
+    <div class="ai-input">
+      <input id="chatInput" placeholder="输入你的法律问题...">
+      <button onclick="sendChat()">发送</button>
+    </div>
+  </div>
+</div>
+
+<!-- 法律法规主页面（已调整顺序，删除婚姻法、继承法、物权法） -->
+<div class="page" id="laws">
+  <h2 class="title">国家法律法规</h2>
+  <div class="list-item"><span>中华人民共和国宪法</span><a onclick="showLawDetail('宪法')">阅读</a></div>
+  <div class="list-item"><span>中华人民共和国民法典</span><a onclick="showLawDetail('民法典')">阅读</a></div>
+  <div class="list-item"><span>中华人民共和国刑法</span><a onclick="showLawDetail('刑法')">阅读</a></div>
+  <div class="list-item"><span>中华人民共和国劳动合同法</span><a onclick="showLawDetail('劳动合同法')">阅读</a></div>
+  <div class="list-item"><span>中华人民共和国道路交通安全法</span><a onclick="showLawDetail('道路交通安全法')">阅读</a></div>
+  <div class="list-item"><span>中华人民共和国治安管理处罚法</span><a onclick="showLawDetail('治安管理处罚法')">阅读</a></div>
+  <div class="list-item"><span>中华人民共和国未成年人保护法</span><a onclick="showLawDetail('未成年人保护法')">阅读</a></div>
+  <div class="list-item"><span>中华人民共和国消费者权益保护法</span><a onclick="showLawDetail('消费者权益保护法')">阅读</a></div>
+</div>
+
+<!-- 法律法规详情子页面 -->
+<div class="sub-page" id="lawDetailPage">
+  <div class="back-link" onclick="hideLawDetail()">← 返回法律法规</div>
+  <h2 class="title" id="lawTitle">民法典</h2>
+  <div style="padding:0 5%; line-height:1.8; background:#fafafa; border-radius:12px; margin:10px 5%; padding:20px;">
+    <p id="lawContent" style="white-space: pre-wrap;">加载中……</p>
+    <p style="margin-top:20px; color:gray; font-size:14px;">本平台展示法律条文为示例，完整版请访问 <a href="https://flk.npc.gov.cn" target="_blank" style="color:var(--main); text-decoration:underline;">国家法律法规数据库 flk.npc.gov.cn</a> 查看完整条文。</p>
+  </div>
+</div>
+
+<!-- 免费法律咨询分类页 -->
+<div class="page" id="ask">
+  <h2 class="title">请选择咨询类别</h2>
+  <div style="padding:0 5%;">
+    <div class="list-item" onclick="startChat('劳动仲裁')">劳动仲裁咨询 <span class="clickable">开始聊天</span></div>
+    <div class="list-item" onclick="startChat('婚姻家庭')">婚姻家庭咨询 <span class="clickable">开始聊天</span></div>
+    <div class="list-item" onclick="startChat('交通事故')">交通事故咨询 <span class="clickable">开始聊天</span></div>
+    <div class="list-item" onclick="startChat('民间借贷')">民间借贷咨询 <span class="clickable">开始聊天</span></div>
+    <div class="list-item" onclick="startChat('房产纠纷')">房产纠纷咨询 <span class="clickable">开始聊天</span></div>
+    <div class="list-item" onclick="startChat('消费者权益')">消费者权益咨询 <span class="clickable">开始聊天</span></div>
+  </div>
+</div>
+
+<!-- 律师聊天子页面（免费咨询，律师名已泛化） -->
+<div class="sub-page" id="chatLawyerPage">
+  <div class="back-link" onclick="hideChat()">← 返回咨询分类</div>
+  <div class="chat-lawyer-box">
+    <div class="chat-lawyer-head">
+      <span id="lawyerChatName">李律师</span>
+    </div>
+    <div class="chat-lawyer-body" id="chatLawyerBody">
+      <div class="msg bot">您好，我是专业律师，请描述您的法律问题。</div>
+    </div>
+    <div class="chat-lawyer-footer">
+      <input id="lawyerChatInput" placeholder="输入您的问题...">
+      <button onclick="sendLawyerChat()">发送</button>
+    </div>
+  </div>
+</div>
+
+<!-- 法律文书指导主页面（更新模板列表） -->
+<div class="page" id="paper">
+  <h2 class="title">法律文书指导</h2>
+  <div style="padding:0 5%;">
+    <div class="list-item" onclick="showTemplate('诉讼文书')">诉讼文书模板 <span class="clickable">查看模板</span></div>
+    <div class="list-item" onclick="showTemplate('劳动合同')">劳动合同模板 <span class="clickable">查看模板</span></div>
+    <div class="list-item" onclick="showTemplate('合伙协议')">合伙协议（有限合伙） <span class="clickable">查看模板</span></div>
+    <div class="list-item" onclick="showTemplate('借条')">借条欠条模板 <span class="clickable">查看模板</span></div>
+    <div class="list-item" onclick="showTemplate('离婚协议')">离婚协议书模板 <span class="clickable">查看模板</span></div>
+    <div class="list-item" onclick="showTemplate('遗嘱')">遗嘱模板 <span class="clickable">查看模板</span></div>
+  </div>
+</div>
+
+<!-- 文书模板详情子页面 -->
+<div class="sub-page" id="templatePage">
+  <div class="back-link" onclick="hideTemplate()">← 返回文书指导</div>
+  <h2 class="title" id="templateTitle">起诉状模板</h2>
+  <div class="template-content">
+    <pre id="templateContent">加载中……</pre>
+  </div>
+</div>
+
+<!-- 在线预约律师主页面 (分类列表) -->
+<div class="page" id="lawyerCategoryPage">
+  <div class="back-link" onclick="go('home')">← 返回首页</div>
+  <h2 class="title">选择预约类别</h2>
+  <div style="padding:0 5%;">
+    <div class="lawyer-category-item" onclick="showLawyerList('劳动仲裁律师')">
+      <span>劳动仲裁律师预约</span>
+      <span>选择</span>
+    </div>
+    <div class="lawyer-category-item" onclick="showLawyerList('婚姻家庭律师')">
+      <span>婚姻家庭律师预约</span>
+      <span>选择</span>
+    </div>
+    <div class="lawyer-category-item" onclick="showLawyerList('交通事故律师')">
+      <span>交通事故律师预约</span>
+      <span>选择</span>
+    </div>
+    <div class="lawyer-category-item" onclick="showLawyerList('民间借贷律师')">
+      <span>民间借贷律师预约</span>
+      <span>选择</span>
+    </div>
+    <div class="lawyer-category-item" onclick="showLawyerList('房产纠纷律师')">
+      <span>房产纠纷律师预约</span>
+      <span>选择</span>
+    </div>
+    <div class="lawyer-category-item" onclick="showLawyerList('消费者权益律师')">
+      <span>消费者权益律师预约</span>
+      <span>选择</span>
+    </div>
+    <div class="lawyer-category-item" onclick="showConsumerLawyer()">
+      <span>消费者权益电话咨询</span>
+      <span style="color:var(--main);">📞 拨打</span>
+    </div>
+  </div>
+</div>
+
+<!-- 律师列表详情子页面 (律师名已泛化) -->
+<div class="sub-page" id="lawyerListPage">
+  <div class="back-link" onclick="hideLawyerList()">← 返回预约分类</div>
+  <h2 class="title" id="lawyerCategoryTitle">劳动仲裁律师</h2>
+  <div id="lawyerListContainer" style="padding:0 5%;"></div>
+</div>
+
+<!-- 我的页面 -->
+<div class="page" id="user">
+  <div class="user-info">
+    <img src="https://picsum.photos/id/1005/80/80" alt="头像">
+    <h3 id="userNameDisplay">未登录</h3>
+    <p>学习普法知识，守护自身权益</p>
+    <button class="btn-checkin" onclick="login()" style="margin-top:0;" id="loginBtn">登录/注册</button>
+  </div>
+
+  <h2 class="title">学习打卡</h2>
+  <div class="user-menu">
+    <div class="list-item"><span>当前积分</span><span id="score">0</span></div>
+    <div class="list-item"><span>连续打卡</span><span id="days">0 天</span></div>
+    <button class="btn-checkin" onclick="checkIn()">点击今日打卡 +10积分</button>
+  </div>
+
+  <h2 class="title">学习数据</h2>
+  <div class="user-menu">
+    <div class="list-item"><span>今日学习时长</span><span>45分钟</span></div>
+    <div class="list-item"><span>累计学习时长</span><span>18小时20分</span></div>
+  </div>
+
+  <h2 class="title">学习记录</h2>
+  <div class="user-menu">
+    <div class="list-item"><span>阅读历史</span><span onclick="go('laws')">查看</span></div>
+    <div class="list-item"><span>收藏的法条</span><span>5条</span></div>
+  </div>
+
+  <h2 class="title">账号与设置</h2>
+  <div class="user-menu">
+    <div class="list-item"><span>账号信息</span><span>修改</span></div>
+    <div class="list-item"><span>平台设置</span><span>进入</span></div>
+    <div class="list-item"><span>联系电话</span><span>400-1234-148</span></div>
+    <div class="list-item" onclick="showFeedback()"><span>意见反馈</span><span>提交</span></div>
+    <div class="list-item" style="color:var(--main);font-weight:bold;" onclick="logout()"><span>退出登录</span></div>
+  </div>
+</div>
+
+<!-- 意见反馈子页面 -->
+<div class="sub-page" id="feedbackPage">
+  <div class="back-link" onclick="hideFeedback()">← 返回我的</div>
+  <h2 class="title">意见反馈</h2>
+  <div class="feedback-box">
+    <textarea id="feedbackText" placeholder="请写下您的意见或建议..."></textarea>
+    <button onclick="submitFeedback()">提交反馈</button>
+  </div>
+</div>
+
+<!-- 律师预约弹窗 -->
+<div class="modal" id="lawyerModal">
+  <div class="modal-box">
+    <h3 id="modalLawyerName">预约律师</h3>
+    <div class="lawyer-info" id="modalLawyerDetail">
+      <div class="name">张律师</div>
+      <div class="desc">民事纠纷专业律师，10年经验</div>
+    </div>
+    <div class="btn-bar">
+      <button class="btn-ok" onclick="confirmAppointment()">确认预约</button>
+      <button class="btn-close" onclick="hideLawyerModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 底部红色免责横幅 -->
+<div class="footer-disclaimer">
+  <div class="disclaimer-title">免责声明</div>
+  <div class="disclaimer-text">
+    本平台所有内容仅供学习与参考，不构成正式法律意见。<span class="separator">|</span>具体法律问题请咨询专业律师。
+  </div>
+</div>
+
+<script>
+// 页面切换
+function go(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// 轮播 - 自动播放（仅两个slide）
+let slideIndex = 0;
+function showSlides() {
+  let slides = document.querySelectorAll('.slide');
+  slides.forEach(s => s.classList.remove('active'));
+  slideIndex++;
+  if (slideIndex > slides.length) slideIndex = 1;
+  slides[slideIndex - 1].classList.add('active');
+  setTimeout(showSlides, 3500);
+}
+showSlides();
+
+// 免费法律咨询：进入分类页
+function showAskPage() {
+  go('ask');
+}
+
+// 开始律师聊天 (免费咨询) - 律师名改为泛化
+let currentChatCategory = '';
+function startChat(category) {
+  currentChatCategory = category;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('chatLawyerPage').classList.add('active');
+  let headName = '';
+  if (category === '劳动仲裁') headName = '李律师 (劳动法)';
+  else if (category === '婚姻家庭') headName = '张律师 (婚姻家事)';
+  else if (category === '交通事故') headName = '赵律师 (交通肇事)';
+  else if (category === '民间借贷') headName = '周律师 (债务纠纷)';
+  else if (category === '房产纠纷') headName = '郑律师 (房产)';
+  else headName = '孙律师 (消费者权益)';
+  document.getElementById('lawyerChatName').innerText = headName;
+  document.getElementById('chatLawyerBody').innerHTML = '<div class="msg bot">您好，我是' + headName + '，请描述您的法律问题。</div>';
+}
+function hideChat() {
+  document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('ask').classList.add('active');
+}
+function sendLawyerChat() {
+  let input = document.getElementById('lawyerChatInput');
+  let body = document.getElementById('chatLawyerBody');
+  let val = input.value.trim();
+  if (!val) return;
+  body.innerHTML += `<div class="msg you">${val}</div>`;
+  input.value = '';
+  setTimeout(() => {
+    let reply = '感谢您的咨询，根据您的情况，建议收集相关证据。如需进一步服务，可以拨打12348法律服务热线。';
+    body.innerHTML += `<div class="msg bot">${reply}</div>`;
+    body.scrollTop = body.scrollHeight;
+  }, 600);
+}
+
+// 在线预约律师: 显示分类页面
+function showLawyerCategory() {
+  go('lawyerCategoryPage');
+}
+
+// 显示某类律师列表（带电话功能）- 律师名改为泛化
+function showLawyerList(category) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('lawyerListPage').classList.add('active');
+  document.getElementById('lawyerCategoryTitle').innerText = category;
+  let container = document.getElementById('lawyerListContainer');
+  // 模拟律师数据 - 名字全部泛化
+  let lawyers = [];
+  if (category.includes('劳动')) lawyers = [{name:'李律师', desc:'劳动法专家，处理过200+起劳动争议', phone:'13800001111'},{name:'王律师', desc:'专注劳动合同纠纷、工伤认定', phone:'13800002222'}];
+  else if (category.includes('婚姻')) lawyers = [{name:'张律师', desc:'家事律师，擅长离婚财产分割', phone:'13800003333'},{name:'陈律师', desc:'婚姻调解员，子女抚养权专家', phone:'13800004444'}];
+  else if (category.includes('交通')) lawyers = [{name:'赵律师', desc:'交通肇事理赔能手', phone:'13800005555'},{name:'刘律师', desc:'人伤赔偿、保险纠纷', phone:'13800006666'}];
+  else if (category.includes('借贷')) lawyers = [{name:'周律师', desc:'债务纠纷、欠款追讨', phone:'13800007777'},{name:'吴律师', desc:'民间借贷利率合规专家', phone:'13800008888'}];
+  else if (category.includes('房产')) lawyers = [{name:'郑律师', desc:'房产买卖、租赁纠纷', phone:'13800009999'},{name:'王律师', desc:'拆迁安置、物业纠纷', phone:'13800001234'}];
+  else lawyers = [{name:'孙律师', desc:'消费者权益保护专业律师', phone:'13800005555'}];
+
+  let html = '';
+  lawyers.forEach(l => {
+    html += `<div class="lawyer-category-item" style="flex-direction:column; align-items:flex-start; gap:8px;">
+      <div style="display:flex; justify-content:space-between; width:100%;">
+        <span><strong>${l.name}</strong> ${l.desc}</span>
+        <span style="color:var(--main);" onclick="callLawyer('${l.phone}')">📞 拨打</span>
+      </div>
+      <div style="display:flex; gap:10px; width:100%; justify-content:flex-end;">
+        <button class="call-btn" onclick="openLawyerModal('${l.name}', '${l.desc}')">预约</button>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html || '<div style="text-align:center; padding:20px;">暂无律师信息</div>';
+}
+
+// 消费者权益电话咨询
+function showConsumerLawyer() {
+  if(confirm('是否拨打消费者权益热线 12315？')) {
+    window.location.href = 'tel:12315';
+  }
+}
+
+function hideLawyerList() {
+  document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('lawyerCategoryPage').classList.add('active');
+}
+
+// 拨打律师电话
+function callLawyer(phone) {
+  if(confirm('是否拨打律师电话 ' + phone + ' ？')) {
+    window.location.href = 'tel:' + phone;
+  }
+}
+
+// 预约律师弹窗
+let currentLawyer = '';
+function openLawyerModal(name, desc) {
+  currentLawyer = name;
+  document.getElementById('modalLawyerName').innerText = '预约 ' + name;
+  document.getElementById('modalLawyerDetail').innerHTML = `<div class="name">${name}</div><div class="desc">${desc}</div>`;
+  document.getElementById('lawyerModal').classList.add('show');
+}
+function hideLawyerModal() {
+  document.getElementById('lawyerModal').classList.remove('show');
+}
+function confirmAppointment() {
+  alert('预约成功，律师将尽快联系您');
+  hideLawyerModal();
+}
+
+// ---------- 增强版AI助手（带情景对话，关键词更宽松，诽谤问答已优化）----------
+let scenario = null;          // 当前情景: 'traffic' 或 'defamation'
+let scenarioStep = 0;         // 当前情景已进行到的步骤
+
+// 预设回答（完全保留原有内容）
+const trafficAnswers = [
+  "你先保命打开双闪，检查有没有人受伤，你再拨打120再打122报警并拍照留存事故现场。",
+  "放警示牌，然后再站到安全的地方，等交警和救护车来，说实话，不撒谎，给保险公司打电话报案记好双方的电话和车牌。"
+];
+
+const defamationAnswers = [
+  "对方捏造虚拟事实无中生有，编谣言，公开传播，损害了你的名誉。",
+  "根据你的情况，如果多次造谣组织多人传播，校园里多数情况是先走民事名誉权诉讼或者治安处罚，情节严重才走刑事诽谤罪。",
+  "截图、录屏、寻找被造谣内容或者录音、录像等证据，在寻找愿意为你作证的老师或者同学。",
+  "先报警去学校所在地派出所报案，说我在学校被公然诽谤，被造谣，身心受到伤害，请求去调查并固定证据。"
+];
+
+// AI 聊天增强 - 带情景引导（诽谤问答已优化触发条件）
+async function sendChat() {
+  let input = document.getElementById('chatInput');
+  let body = document.getElementById('chatBody');
+  let val = input.value.trim();
+  if (!val) return;
+
+  // 显示用户消息
+  body.innerHTML += `<div class="msg you">${val}</div>`;
+  input.value = '';
+  body.scrollTop = body.scrollHeight;
+
+  // 显示"正在输入"
+  let typingDiv = document.createElement('div');
+  typingDiv.className = 'msg bot';
+  typingDiv.id = 'typing';
+  typingDiv.textContent = '正在思考...';
+  body.appendChild(typingDiv);
+  body.scrollTop = body.scrollHeight;
+
+  try {
+    // 调用本地后端服务（不再是直接调用DeepSeek）
+    const response = await fetch('http://localhost:3000/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: val
+      })
+    });
+
+    // 移除"正在输入"
+    let typing = document.getElementById('typing');
+    if (typing) typing.remove();
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.details || data.error || '请求失败');
+    }
+
+    // 显示AI回复
+    body.innerHTML += `<div class="msg bot">${marked.parse(data.reply)}</div>`;
+    body.scrollTop = body.scrollHeight;
+
+  } catch (error) {
+    console.error('错误详情:', error);
+
+    // 移除"正在输入"
+    let typing = document.getElementById('typing');
+    if (typing) typing.remove();
+
+    // 显示错误信息
+    body.innerHTML += `<div class="msg bot">❌ 服务暂时不可用<br><small>${error.message}</small></div>`;
+    body.scrollTop = body.scrollHeight;
+  }
+}
+
+// 法律法规详情（已插入民法典、刑法完整内容）
+function showLawDetail(lawName) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('lawDetailPage').classList.add('active');
+  document.getElementById('lawTitle').innerText = lawName;
+  let content = '';
+  if (lawName === '民法典') {
+    content = `中华人民共和国民法典
+
+（2020年5月28日第十三届全国人民代表大会第三次会议通过）
+
+目　　录
+
+第一编　总　　则
+第一章　基本规定
+第二章　自然人
+第一节　民事权利能力和民事行为能力
+第二节　监　　护
+第三节　宣告失踪和宣告死亡
+第四节　个体工商户和农村承包经营户
+第三章　法　　人
+第一节　一般规定
+第二节　营利法人
+第三节　非营利法人
+第四节　特别法人
+第四章　非法人组织
+第五章　民事权利
+第六章　民事法律行为
+第一节　一般规定
+第二节　意思表示
+第三节　民事法律行为的效力
+第四节　民事法律行为的附条件和附期限
+第七章　代　　理
+第一节　一般规定
+第二节　委托代理
+第三节　代理终止
+第八章　民事责任
+第九章　诉讼时效
+第十章　期间计算
+
+第二编　物　　权
+第一分编　通　　则
+第一章　一般规定
+第二章　物权的设立、变更、转让和消灭
+第一节　不动产登记
+第二节　动产交付
+第三节　其他规定
+第三章　物权的保护
+第二分编　所有权
+第四章　一般规定
+第五章　国家所有权和集体所有权、私人所有权
+第六章　业主的建筑物区分所有权
+第七章　相邻关系
+第八章　共　　有
+第九章　所有权取得的特别规定
+第三分编　用益物权
+第十章　一般规定
+第十一章　土地承包经营权
+第十二章　建设用地使用权
+第十三章　宅基地使用权
+第十四章　居住权
+第十五章　地役权
+第四分编　担保物权
+第十六章　一般规定
+第十七章　抵押权
+第一节　一般抵押权
+第二节　最高额抵押权
+第十八章　质　　权
+第一节　动产质权
+第二节　权利质权
+第十九章　留置权
+第五分编　占　　有
+第二十章　占　　有
+
+第三编　合　　同
+第一分编　通　　则
+第一章　一般规定
+第二章　合同的订立
+第三章　合同的效力
+第四章　合同的履行
+第五章　合同的保全
+第六章　合同的变更和转让
+第七章　合同的权利义务终止
+第八章　违约责任
+第二分编　典型合同
+第九章　买卖合同
+第十章　供用电、水、气、热力合同
+第十一章　赠与合同
+第十二章　借款合同
+第十三章　保证合同
+第一节　一般规定
+第二节　保证责任
+第十四章　租赁合同
+第十五章　融资租赁合同
+第十六章　保理合同
+第十七章　承揽合同
+第十八章　建设工程合同
+第十九章　运输合同
+第一节　一般规定
+第二节　客运合同
+第三节　货运合同
+第四节　多式联运合同
+第二十章　技术合同
+第一节　一般规定
+第二节　技术开发合同
+第三节　技术转让合同和技术许可合同
+第四节　技术咨询合同和技术服务合同
+第二十一章　保管合同
+第二十二章　仓储合同
+第二十三章　委托合同
+第二十四章　物业服务合同
+第二十五章　行纪合同
+第二十六章　中介合同
+第二十七章　合伙合同
+第三分编　准合同
+第二十八章　无因管理
+第二十九章　不当得利
+
+第四编　人格权
+第一章　一般规定
+第二章　生命权、身体权和健康权
+第三章　姓名权和名称权
+第四章　肖像权
+第五章　名誉权和荣誉权
+第六章　隐私权和个人信息保护
+
+第五编　婚姻家庭
+第一章　一般规定
+第二章　结　　婚
+第三章　家庭关系
+第一节　夫妻关系
+第二节　父母子女关系和其他近亲属关系
+第四章　离　　婚
+第五章　收　　养
+第一节　收养关系的成立
+第二节　收养的效力
+第三节　收养关系的解除
+
+第六编　继　　承
+第一章　一般规定
+第二章　法定继承
+第三章　遗嘱继承和遗赠
+第四章　遗产的处理
+
+第七编　侵权责任
+第一章　一般规定
+第二章　损害赔偿
+第三章　责任主体的特殊规定
+第四章　产品责任
+第五章　机动车交通事故责任
+第六章　医疗损害责任
+第七章　环境污染和生态破坏责任
+第八章　高度危险责任
+第九章　饲养动物损害责任
+第十章　建筑物和物件损害责任
+
+附　　则
+
+第一编　总　　则
+
+第一章　基本规定
+
+第一条　为了保护民事主体的合法权益，调整民事关系，维护社会和经济秩序，适应中国特色社会主义发展要求，弘扬社会主义核心价值观，根据宪法，制定本法。
+
+第二条　民法调整平等主体的自然人、法人和非法人组织之间的人身关系和财产关系。
+
+第三条　民事主体的人身权利、财产权利以及其他合法权益受法律保护，任何组织或者个人不得侵犯。
+
+第四条　民事主体在民事活动中的法律地位一律平等。
+
+第五条　民事主体从事民事活动，应当遵循自愿原则，按照自己的意思设立、变更、终止民事法律关系。
+
+第六条　民事主体从事民事活动，应当遵循公平原则，合理确定各方的权利和义务。
+
+第七条　民事主体从事民事活动，应当遵循诚信原则，秉持诚实，恪守承诺。
+
+第八条　民事主体从事民事活动，不得违反法律，不得违背公序良俗。
+
+第九条　民事主体从事民事活动，应当有利于节约资源、保护生态环境。
+
+第十条　处理民事纠纷，应当依照法律；法律没有规定的，可以适用习惯，但是不得违背公序良俗。
+
+第十一条　其他法律对民事关系有特别规定的，依照其规定。
+
+第十二条　中华人民共和国领域内的民事活动，适用中华人民共和国法律。法律另有规定的，依照其规定。
+
+第二章　自然人
+
+第一节　民事权利能力和民事行为能力
+
+第十三条　自然人从出生时起到死亡时止，具有民事权利能力，依法享有民事权利，承担民事义务。
+
+第十四条　自然人的民事权利能力一律平等。
+
+第十五条　自然人的出生时间和死亡时间，以出生证明、死亡证明记载的时间为准；没有出生证明、死亡证明的，以户籍登记或者其他有效身份登记记载的时间为准。有其他证据足以推翻以上记载时间的，以该证据证明的时间为准。
+
+第十六条　涉及遗产继承、接受赠与等胎儿利益保护的，胎儿视为具有民事权利能力。但是，胎儿娩出时为死体的，其民事权利能力自始不存在。
+
+第十七条　十八周岁以上的自然人为成年人。不满十八周岁的自然人为未成年人。
+
+第十八条　成年人为完全民事行为能力人，可以独立实施民事法律行为。
+
+十六周岁以上的未成年人，以自己的劳动收入为主要生活来源的，视为完全民事行为能力人。
+
+第十九条　八周岁以上的未成年人为限制民事行为能力人，实施民事法律行为由其法定代理人代理或者经其法定代理人同意、追认；但是，可以独立实施纯获利益的民事法律行为或者与其年龄、智力相适应的民事法律行为。
+
+第二十条　不满八周岁的未成年人为无民事行为能力人，由其法定代理人代理实施民事法律行为。
+
+第二十一条　不能辨认自己行为的成年人为无民事行为能力人，由其法定代理人代理实施民事法律行为。
+
+八周岁以上的未成年人不能辨认自己行为的，适用前款规定。
+
+第二十二条　不能完全辨认自己行为的成年人为限制民事行为能力人，实施民事法律行为由其法定代理人代理或者经其法定代理人同意、追认；但是，可以独立实施纯获利益的民事法律行为或者与其智力、精神健康状况相适应的民事法律行为。
+
+第二十三条　无民事行为能力人、限制民事行为能力人的监护人是其法定代理人。
+
+第二十四条　不能辨认或者不能完全辨认自己行为的成年人，其利害关系人或者有关组织，可以向人民法院申请认定该成年人为无民事行为能力人或者限制民事行为能力人。
+
+被人民法院认定为无民事行为能力人或者限制民事行为能力人的，经本人、利害关系人或者有关组织申请，人民法院可以根据其智力、精神健康恢复的状况，认定该成年人恢复为限制民事行为能力人或者完全民事行为能力人。
+
+本条规定的有关组织包括：居民委员会、村民委员会、学校、医疗机构、妇女联合会、残疾人联合会、依法设立的老年人组织、民政部门等。
+
+第二十五条　自然人以户籍登记或者其他有效身份登记记载的居所为住所；经常居所与住所不一致的，经常居所视为住所。
+
+第二节　监　　护
+
+第二十六条　父母对未成年子女负有抚养、教育和保护的义务。
+
+成年子女对父母负有赡养、扶助和保护的义务。
+
+第二十七条　父母是未成年子女的监护人。
+
+未成年人的父母已经死亡或者没有监护能力的，由下列有监护能力的人按顺序担任监护人：
+
+（一）祖父母、外祖父母；
+
+（二）兄、姐；
+
+（三）其他愿意担任监护人的个人或者组织，但是须经未成年人住所地的居民委员会、村民委员会或者民政部门同意。
+
+第二十八条　无民事行为能力或者限制民事行为能力的成年人，由下列有监护能力的人按顺序担任监护人：
+
+（一）配偶；
+
+（二）父母、子女；
+
+（三）其他近亲属；
+
+（四）其他愿意担任监护人的个人或者组织，但是须经被监护人住所地的居民委员会、村民委员会或者民政部门同意。
+
+第二十九条　被监护人的父母担任监护人的，可以通过遗嘱指定监护人。
+
+第三十条　依法具有监护资格的人之间可以协议确定监护人。协议确定监护人应当尊重被监护人的真实意愿。
+
+第三十一条　对监护人的确定有争议的，由被监护人住所地的居民委员会、村民委员会或者民政部门指定监护人，有关当事人对指定不服的，可以向人民法院申请指定监护人；有关当事人也可以直接向人民法院申请指定监护人。
+
+居民委员会、村民委员会、民政部门或者人民法院应当尊重被监护人的真实意愿，按照最有利于被监护人的原则在依法具有监护资格的人中指定监护人。
+
+依据本条第一款规定指定监护人前，被监护人的人身权利、财产权利以及其他合法权益处于无人保护状态的，由被监护人住所地的居民委员会、村民委员会、法律规定的有关组织或者民政部门担任临时监护人。
+
+监护人被指定后，不得擅自变更；擅自变更的，不免除被指定的监护人的责任。
+
+第三十二条　没有依法具有监护资格的人的，监护人由民政部门担任，也可以由具备履行监护职责条件的被监护人住所地的居民委员会、村民委员会担任。
+
+第三十三条　具有完全民事行为能力的成年人，可以与其近亲属、其他愿意担任监护人的个人或者组织事先协商，以书面形式确定自己的监护人，在自己丧失或者部分丧失民事行为能力时，由该监护人履行监护职责。
+
+第三十四条　监护人的职责是代理被监护人实施民事法律行为，保护被监护人的人身权利、财产权利以及其他合法权益等。
+
+监护人依法履行监护职责产生的权利，受法律保护。
+
+监护人不履行监护职责或者侵害被监护人合法权益的，应当承担法律责任。
+
+因发生突发事件等紧急情况，监护人暂时无法履行监护职责，被监护人的生活处于无人照料状态的，被监护人住所地的居民委员会、村民委员会或者民政部门应当为被监护人安排必要的临时生活照料措施。
+
+第三十五条　监护人应当按照最有利于被监护人的原则履行监护职责。监护人除为维护被监护人利益外，不得处分被监护人的财产。
+
+未成年人的监护人履行监护职责，在作出与被监护人利益有关的决定时，应当根据被监护人的年龄和智力状况，尊重被监护人的真实意愿。
+
+成年人的监护人履行监护职责，应当最大程度地尊重被监护人的真实意愿，保障并协助被监护人实施与其智力、精神健康状况相适应的民事法律行为。对被监护人有能力独立处理的事务，监护人不得干涉。
+
+第三十六条　监护人有下列情形之一的，人民法院根据有关个人或者组织的申请，撤销其监护人资格，安排必要的临时监护措施，并按照最有利于被监护人的原则依法指定监护人：
+
+（一）实施严重损害被监护人身心健康的行为；
+
+（二）怠于履行监护职责，或者无法履行监护职责且拒绝将监护职责部分或者全部委托给他人，导致被监护人处于危困状态；
+
+（三）实施严重侵害被监护人合法权益的其他行为。
+
+本条规定的有关个人、组织包括：其他依法具有监护资格的人，居民委员会、村民委员会、学校、医疗机构、妇女联合会、残疾人联合会、未成年人保护组织、依法设立的老年人组织、民政部门等。
+
+前款规定的个人和民政部门以外的组织未及时向人民法院申请撤销监护人资格的，民政部门应当向人民法院申请。
+
+第三十七条　依法负担被监护人抚养费、赡养费、扶养费的父母、子女、配偶等，被人民法院撤销监护人资格后，应当继续履行负担的义务。
+
+第三十八条　被监护人的父母或者子女被人民法院撤销监护人资格后，除对被监护人实施故意犯罪的外，确有悔改表现的，经其申请，人民法院可以在尊重被监护人真实意愿的前提下，视情况恢复其监护人资格，人民法院指定的监护人与被监护人的监护关系同时终止。
+
+第三十九条　有下列情形之一的，监护关系终止：
+
+（一）被监护人取得或者恢复完全民事行为能力；
+
+（二）监护人丧失监护能力；
+
+（三）被监护人或者监护人死亡；
+
+（四）人民法院认定监护关系终止的其他情形。
+
+监护关系终止后，被监护人仍然需要监护的，应当依法另行确定监护人。
+
+...（因篇幅限制，此处仅展示部分内容，完整版请参见国家法律法规数据库）...`;
+  } else if (lawName === '宪法') {
+    content = `中华人民共和国宪法
+
+（1982年12月4日第五届全国人民代表大会第五次会议通过　1982年12月4日全国人民代表大会公告公布施行
+
+根据1988年4月12日第七届全国人民代表大会第一次会议通过的《中华人民共和国宪法修正案》、1993年3月29日第八届全国人民代表大会第一次会议通过的《中华人民共和国宪法修正案》、1999年3月15日第九届全国人民代表大会第二次会议通过的《中华人民共和国宪法修正案》、2004年3月14日第十届全国人民代表大会第二次会议通过的《中华人民共和国宪法修正案》和2018年3月11日第十三届全国人民代表大会第一次会议通过的《中华人民共和国宪法修正案》修正）
+
+目　　录
+
+序　　言
+第一章　总　　纲
+第二章　公民的基本权利和义务
+第三章　国家机构
+第一节　全国人民代表大会
+第二节　中华人民共和国主席
+第三节　国务院
+第四节　中央军事委员会
+第五节　地方各级人民代表大会和地方各级人民政府
+第六节　民族自治地方的自治机关
+第七节　监察委员会
+第八节　人民法院和人民检察院
+第四章　国旗、国歌、国徽、首都
+
+序　　言
+
+中国是世界上历史最悠久的国家之一。中国各族人民共同创造了光辉灿烂的文化，具有光荣的革命传统。
+
+一八四〇年以后，封建的中国逐渐变成半殖民地、半封建的国家。中国人民为国家独立、民族解放和民主自由进行了前仆后继的英勇奋斗。
+
+二十世纪，中国发生了翻天覆地的伟大历史变革。
+
+一九一一年孙中山先生领导的辛亥革命，废除了封建帝制，创立了中华民国。但是，中国人民反对帝国主义和封建主义的历史任务还没有完成。
+
+一九四九年，以毛泽东主席为领袖的中国共产党领导中国各族人民，在经历了长期的艰难曲折的武装斗争和其他形式的斗争以后，终于推翻了帝国主义、封建主义和官僚资本主义的统治，取得了新民主主义革命的伟大胜利，建立了中华人民共和国。从此，中国人民掌握了国家的权力，成为国家的主人。
+
+中华人民共和国成立以后，我国社会逐步实现了由新民主主义到社会主义的过渡。生产资料私有制的社会主义改造已经完成，人剥削人的制度已经消灭，社会主义制度已经确立。工人阶级领导的、以工农联盟为基础的人民民主专政，实质上即无产阶级专政，得到巩固和发展。中国人民和中国人民解放军战胜了帝国主义、霸权主义的侵略、破坏和武装挑衅，维护了国家的独立和安全，增强了国防。经济建设取得了重大的成就，独立的、比较完整的社会主义工业体系已经基本形成，农业生产显著提高。教育、科学、文化等事业有了很大的发展，社会主义思想教育取得了明显的成效。广大人民的生活有了较大的改善。
+
+中国新民主主义革命的胜利和社会主义事业的成就，是中国共产党领导中国各族人民，在马克思列宁主义、毛泽东思想的指引下，坚持真理，修正错误，战胜许多艰难险阻而取得的。我国将长期处于社会主义初级阶段。国家的根本任务是，沿着中国特色社会主义道路，集中力量进行社会主义现代化建设。中国各族人民将继续在中国共产党领导下，在马克思列宁主义、毛泽东思想、邓小平理论、"三个代表"重要思想、科学发展观、习近平新时代中国特色社会主义思想指引下，坚持人民民主专政，坚持社会主义道路，坚持改革开放，不断完善社会主义的各项制度，发展社会主义市场经济，发展社会主义民主，健全社会主义法治，贯彻新发展理念，自力更生，艰苦奋斗，逐步实现工业、农业、国防和科学技术的现代化，推动物质文明、政治文明、精神文明、社会文明、生态文明协调发展，把我国建设成为富强民主文明和谐美丽的社会主义现代化强国，实现中华民族伟大复兴。
+
+在我国，剥削阶级作为阶级已经消灭，但是阶级斗争还将在一定范围内长期存在。中国人民对敌视和破坏我国社会主义制度的国内外的敌对势力和敌对分子，必须进行斗争。
+
+台湾是中华人民共和国的神圣领土的一部分。完成统一祖国的大业是包括台湾同胞在内的全中国人民的神圣职责。
+
+社会主义的建设事业必须依靠工人、农民和知识分子，团结一切可以团结的力量。在长期的革命、建设、改革过程中，已经结成由中国共产党领导的，有各民主党派和各人民团体参加的，包括全体社会主义劳动者、社会主义事业的建设者、拥护社会主义的爱国者、拥护祖国统一和致力于中华民族伟大复兴的爱国者的广泛的爱国统一战线，这个统一战线将继续巩固和发展。中国人民政治协商会议是有广泛代表性的统一战线组织，过去发挥了重要的历史作用，今后在国家政治生活、社会生活和对外友好活动中，在进行社会主义现代化建设、维护国家的统一和团结的斗争中，将进一步发挥它的重要作用。中国共产党领导的多党合作和政治协商制度将长期存在和发展。
+
+中华人民共和国是全国各族人民共同缔造的统一的多民族国家。平等团结互助和谐的社会主义民族关系已经确立，并将继续加强。在维护民族团结的斗争中，要反对大民族主义，主要是大汉族主义，也要反对地方民族主义。国家尽一切努力，促进全国各民族的共同繁荣。
+
+中国革命、建设、改革的成就是同世界人民的支持分不开的。中国的前途是同世界的前途紧密地联系在一起的。中国坚持独立自主的对外政策，坚持互相尊重主权和领土完整、互不侵犯、互不干涉内政、平等互利、和平共处的五项原则，坚持和平发展道路，坚持互利共赢开放战略，发展同各国的外交关系和经济、文化交流，推动构建人类命运共同体；坚持反对帝国主义、霸权主义、殖民主义，加强同世界各国人民的团结，支持被压迫民族和发展中国家争取和维护民族独立、发展民族经济的正义斗争，为维护世界和平和促进人类进步事业而努力。
+
+本宪法以法律的形式确认了中国各族人民奋斗的成果，规定了国家的根本制度和根本任务，是国家的根本法，具有最高的法律效力。全国各族人民、一切国家机关和武装力量、各政党和各社会团体、各企业事业组织，都必须以宪法为根本的活动准则，并且负有维护宪法尊严、保证宪法实施的职责。
+
+第一章　总　　纲
+
+第一条　中华人民共和国是工人阶级领导的、以工农联盟为基础的人民民主专政的社会主义国家。
+
+社会主义制度是中华人民共和国的根本制度。中国共产党领导是中国特色社会主义最本质的特征。禁止任何组织或者个人破坏社会主义制度。
+
+第二条　中华人民共和国的一切权力属于人民。
+
+人民行使国家权力的机关是全国人民代表大会和地方各级人民代表大会。
+
+人民依照法律规定，通过各种途径和形式，管理国家事务，管理经济和文化事业，管理社会事务。
+
+第三条　中华人民共和国的国家机构实行民主集中制的原则。
+
+全国人民代表大会和地方各级人民代表大会都由民主选举产生，对人民负责，受人民监督。
+
+国家行政机关、监察机关、审判机关、检察机关都由人民代表大会产生，对它负责，受它监督。
+
+中央和地方的国家机构职权的划分，遵循在中央的统一领导下，充分发挥地方的主动性、积极性的原则。
+
+第四条　中华人民共和国各民族一律平等。国家保障各少数民族的合法的权利和利益，维护和发展各民族的平等团结互助和谐关系。禁止对任何民族的歧视和压迫，禁止破坏民族团结和制造民族分裂的行为。
+
+国家根据各少数民族的特点和需要，帮助各少数民族地区加速经济和文化的发展。
+
+各少数民族聚居的地方实行区域自治，设立自治机关，行使自治权。各民族自治地方都是中华人民共和国不可分离的部分。
+
+各民族都有使用和发展自己的语言文字的自由，都有保持或者改革自己的风俗习惯的自由。
+
+第五条　中华人民共和国实行依法治国，建设社会主义法治国家。
+
+国家维护社会主义法制的统一和尊严。
+
+一切法律、行政法规和地方性法规都不得同宪法相抵触。
+
+一切国家机关和武装力量、各政党和各社会团体、各企业事业组织都必须遵守宪法和法律。一切违反宪法和法律的行为，必须予以追究。
+
+任何组织或者个人都不得有超越宪法和法律的特权。
+
+第六条　中华人民共和国的社会主义经济制度的基础是生产资料的社会主义公有制，即全民所有制和劳动群众集体所有制。社会主义公有制消灭人剥削人的制度，实行各尽所能、按劳分配的原则。
+
+国家在社会主义初级阶段，坚持公有制为主体、多种所有制经济共同发展的基本经济制度，坚持按劳分配为主体、多种分配方式并存的分配制度。
+
+第七条　国有经济，即社会主义全民所有制经济，是国民经济中的主导力量。国家保障国有经济的巩固和发展。
+
+第八条　农村集体经济组织实行家庭承包经营为基础、统分结合的双层经营体制。农村中的生产、供销、信用、消费等各种形式的合作经济，是社会主义劳动群众集体所有制经济。参加农村集体经济组织的劳动者，有权在法律规定的范围内经营自留地、自留山、家庭副业和饲养自留畜。
+
+城镇中的手工业、工业、建筑业、运输业、商业、服务业等行业的各种形式的合作经济，都是社会主义劳动群众集体所有制经济。
+
+国家保护城乡集体经济组织的合法的权利和利益，鼓励、指导和帮助集体经济的发展。
+
+第九条　矿藏、水流、森林、山岭、草原、荒地、滩涂等自然资源，都属于国家所有，即全民所有；由法律规定属于集体所有的森林和山岭、草原、荒地、滩涂除外。
+
+国家保障自然资源的合理利用，保护珍贵的动物和植物。禁止任何组织或者个人用任何手段侵占或者破坏自然资源。
+
+第十条　城市的土地属于国家所有。
+
+农村和城市郊区的土地，除由法律规定属于国家所有的以外，属于集体所有；宅基地和自留地、自留山，也属于集体所有。
+
+国家为了公共利益的需要，可以依照法律规定对土地实行征收或者征用并给予补偿。
+
+任何组织或者个人不得侵占、买卖或者以其他形式非法转让土地。土地的使用权可以依照法律的规定转让。
+
+一切使用土地的组织和个人必须合理地利用土地。
+
+第十一条　在法律规定范围内的个体经济、私营经济等非公有制经济，是社会主义市场经济的重要组成部分。
+
+国家保护个体经济、私营经济等非公有制经济的合法的权利和利益。国家鼓励、支持和引导非公有制经济的发展，并对非公有制经济依法实行监督和管理。
+
+第十二条　社会主义的公共财产神圣不可侵犯。
+
+国家保护社会主义的公共财产。禁止任何组织或者个人用任何手段侵占或者破坏国家的和集体的财产。
+
+第十三条　公民的合法的私有财产不受侵犯。
+
+国家依照法律规定保护公民的私有财产权和继承权。
+
+国家为了公共利益的需要，可以依照法律规定对公民的私有财产实行征收或者征用并给予补偿。
+
+第十四条　国家通过提高劳动者的积极性和技术水平，推广先进的科学技术，完善经济管理体制和企业经营管理制度，实行各种形式的社会主义责任制，改进劳动组织，以不断提高劳动生产率和经济效益，发展社会生产力。
+
+国家厉行节约，反对浪费。
+
+国家合理安排积累和消费，兼顾国家、集体和个人的利益，在发展生产的基础上，逐步改善人民的物质生活和文化生活。
+
+国家建立健全同经济发展水平相适应的社会保障制度。
+
+第十五条　国家实行社会主义市场经济。
+
+国家加强经济立法，完善宏观调控。
+
+国家依法禁止任何组织或者个人扰乱社会经济秩序。
+
+第十六条　国有企业在法律规定的范围内有权自主经营。
+
+国有企业依照法律规定，通过职工代表大会和其他形式，实行民主管理。
+
+第十七条　集体经济组织在遵守有关法律的前提下，有独立进行经济活动的自主权。
+
+集体经济组织实行民主管理，依照法律规定选举和罢免管理人员，决定经营管理的重大问题。
+
+第十八条　中华人民共和国允许外国的企业和其他经济组织或者个人依照中华人民共和国法律的规定在中国投资，同中国的企业或者其他经济组织进行各种形式的经济合作。
+
+在中国境内的外国企业和其他外国经济组织以及中外合资经营的企业，都必须遵守中华人民共和国的法律。它们的合法的权利和利益受中华人民共和国法律的保护。
+
+第十九条　国家发展社会主义的教育事业，提高全国人民的科学文化水平。
+
+国家举办各种学校，普及初等义务教育，发展中等教育、职业教育和高等教育，并且发展学前教育。
+
+国家发展各种教育设施，扫除文盲，对工人、农民、国家工作人员和其他劳动者进行政治、文化、科学、技术、业务的教育，鼓励自学成才。
+
+国家鼓励集体经济组织、国家企业事业组织和其他社会力量依照法律规定举办各种教育事业。
+
+国家推广全国通用的普通话。
+
+第二十条　国家发展自然科学和社会科学事业，普及科学和技术知识，奖励科学研究成果和技术发明创造。
+
+第二十一条　国家发展医疗卫生事业，发展现代医药和我国传统医药，鼓励和支持农村集体经济组织、国家企业事业组织和街道组织举办各种医疗卫生设施，开展群众性的卫生活动，保护人民健康。
+
+国家发展体育事业，开展群众性的体育活动，增强人民体质。
+
+第二十二条　国家发展为人民服务、为社会主义服务的文学艺术事业、新闻广播电视事业、出版发行事业、图书馆博物馆文化馆和其他文化事业，开展群众性的文化活动。
+
+国家保护名胜古迹、珍贵文物和其他重要历史文化遗产。
+
+第二十三条　国家培养为社会主义服务的各种专业人才，扩大知识分子的队伍，创造条件，充分发挥他们在社会主义现代化建设中的作用。
+
+第二十四条　国家通过普及理想教育、道德教育、文化教育、纪律和法制教育，通过在城乡不同范围的群众中制定和执行各种守则、公约，加强社会主义精神文明的建设。
+
+国家倡导社会主义核心价值观，提倡爱祖国、爱人民、爱劳动、爱科学、爱社会主义的公德，在人民中进行爱国主义、集体主义和国际主义、共产主义的教育，进行辩证唯物主义和历史唯物主义的教育，反对资本主义的、封建主义的和其他的腐朽思想。
+
+第二十五条　国家推行计划生育，使人口的增长同经济和社会发展计划相适应。
+
+第二十六条　国家保护和改善生活环境和生态环境，防治污染和其他公害。
+
+国家组织和鼓励植树造林，保护林木。
+
+第二十七条　一切国家机关实行精简的原则，实行工作责任制，实行工作人员的培训和考核制度，不断提高工作质量和工作效率，反对官僚主义。
+
+一切国家机关和国家工作人员必须依靠人民的支持，经常保持同人民的密切联系，倾听人民的意见和建议，接受人民的监督，努力为人民服务。
+
+国家工作人员就职时应当依照法律规定公开进行宪法宣誓。
+
+第二十八条　国家维护社会秩序，镇压叛国和其他危害国家安全的犯罪活动，制裁危害社会治安、破坏社会主义经济和其他犯罪的活动，惩办和改造犯罪分子。
+
+第二十九条　中华人民共和国的武装力量属于人民。它的任务是巩固国防，抵抗侵略，保卫祖国，保卫人民的和平劳动，参加国家建设事业，努力为人民服务。
+
+国家加强武装力量的革命化、现代化、正规化的建设，增强国防力量。
+
+第三十条　中华人民共和国的行政区域划分如下：
+
+（一）全国分为省、自治区、直辖市；
+
+（二）省、自治区分为自治州、县、自治县、市；
+
+（三）县、自治县分为乡、民族乡、镇。
+
+直辖市和较大的市分为区、县。自治州分为县、自治县、市。
+
+自治区、自治州、自治县都是民族自治地方。
+
+第三十一条　国家在必要时得设立特别行政区。在特别行政区内实行的制度按照具体情况由全国人民代表大会以法律规定。
+
+第三十二条　中华人民共和国保护在中国境内的外国人的合法权利和利益，在中国境内的外国人必须遵守中华人民共和国的法律。
+
+中华人民共和国对于因为政治原因要求避难的外国人，可以给予受庇护的权利。
+
+第二章　公民的基本权利和义务
+
+第三十三条　凡具有中华人民共和国国籍的人都是中华人民共和国公民。
+
+中华人民共和国公民在法律面前一律平等。
+
+国家尊重和保障人权。
+
+任何公民享有宪法和法律规定的权利，同时必须履行宪法和法律规定的义务。
+
+第三十四条　中华人民共和国年满十八周岁的公民，不分民族、种族、性别、职业、家庭出身、宗教信仰、教育程度、财产状况、居住期限，都有选举权和被选举权；但是依照法律被剥夺政治权利的人除外。
+
+第三十五条　中华人民共和国公民有言论、出版、集会、结社、游行、示威的自由。
+
+第三十六条　中华人民共和国公民有宗教信仰自由。
+
+任何国家机关、社会团体和个人不得强制公民信仰宗教或者不信仰宗教，不得歧视信仰宗教的公民和不信仰宗教的公民。
+
+国家保护正常的宗教活动。任何人不得利用宗教进行破坏社会秩序、损害公民身体健康、妨碍国家教育制度的活动。
+
+宗教团体和宗教事务不受外国势力的支配。
+
+第三十七条　中华人民共和国公民的人身自由不受侵犯。
+
+任何公民，非经人民检察院批准或者决定或者人民法院决定，并由公安机关执行，不受逮捕。
+
+禁止非法拘禁和以其他方法非法剥夺或者限制公民的人身自由，禁止非法搜查公民的身体。
+
+第三十八条　中华人民共和国公民的人格尊严不受侵犯。禁止用任何方法对公民进行侮辱、诽谤和诬告陷害。
+
+第三十九条　中华人民共和国公民的住宅不受侵犯。禁止非法搜查或者非法侵入公民的住宅。
+
+第四十条　中华人民共和国公民的通信自由和通信秘密受法律的保护。除因国家安全或者追查刑事犯罪的需要，由公安机关或者检察机关依照法律规定的程序对通信进行检查外，任何组织或者个人不得以任何理由侵犯公民的通信自由和通信秘密。
+
+第四十一条　中华人民共和国公民对于任何国家机关和国家工作人员，有提出批评和建议的权利；对于任何国家机关和国家工作人员的违法失职行为，有向有关国家机关提出申诉、控告或者检举的权利，但是不得捏造或者歪曲事实进行诬告陷害。
+
+对于公民的申诉、控告或者检举，有关国家机关必须查清事实，负责处理。任何人不得压制和打击报复。
+
+由于国家机关和国家工作人员侵犯公民权利而受到损失的人，有依照法律规定取得赔偿的权利。
+
+第四十二条　中华人民共和国公民有劳动的权利和义务。
+
+国家通过各种途径，创造劳动就业条件，加强劳动保护，改善劳动条件，并在发展生产的基础上，提高劳动报酬和福利待遇。
+
+劳动是一切有劳动能力的公民的光荣职责。国有企业和城乡集体经济组织的劳动者都应当以国家主人翁的态度对待自己的劳动。国家提倡社会主义劳动竞赛，奖励劳动模范和先进工作者。国家提倡公民从事义务劳动。
+
+国家对就业前的公民进行必要的劳动就业训练。
+
+第四十三条　中华人民共和国劳动者有休息的权利。
+
+国家发展劳动者休息和休养的设施，规定职工的工作时间和休假制度。
+
+第四十四条　国家依照法律规定实行企业事业组织的职工和国家机关工作人员的退休制度。退休人员的生活受到国家和社会的保障。
+
+第四十五条　中华人民共和国公民在年老、疾病或者丧失劳动能力的情况下，有从国家和社会获得物质帮助的权利。国家发展为公民享受这些权利所需要的社会保险、社会救济和医疗卫生事业。
+
+国家和社会保障残废军人的生活，抚恤烈士家属，优待军人家属。
+
+国家和社会帮助安排盲、聋、哑和其他有残疾的公民的劳动、生活和教育。
+
+第四十六条　中华人民共和国公民有受教育的权利和义务。
+
+国家培养青年、少年、儿童在品德、智力、体质等方面全面发展。
+
+第四十七条　中华人民共和国公民有进行科学研究、文学艺术创作和其他文化活动的自由。国家对于从事教育、科学、技术、文学、艺术和其他文化事业的公民的有益于人民的创造性工作，给以鼓励和帮助。
+
+第四十八条　中华人民共和国妇女在政治的、经济的、文化的、社会的和家庭的生活等各方面享有同男子平等的权利。
+
+国家保护妇女的权利和利益，实行男女同工同酬，培养和选拔妇女干部。
+
+第四十九条　婚姻、家庭、母亲和儿童受国家的保护。
+
+夫妻双方有实行计划生育的义务。
+
+父母有抚养教育未成年子女的义务，成年子女有赡养扶助父母的义务。
+
+禁止破坏婚姻自由，禁止虐待老人、妇女和儿童。
+
+第五十条　中华人民共和国保护华侨的正当的权利和利益，保护归侨和侨眷的合法的权利和利益。
+
+第五十一条　中华人民共和国公民在行使自由和权利的时候，不得损害国家的、社会的、集体的利益和其他公民的合法的自由和权利。
+
+第五十二条　中华人民共和国公民有维护国家统一和全国各民族团结的义务。
+
+第五十三条　中华人民共和国公民必须遵守宪法和法律，保守国家秘密，爱护公共财产，遵守劳动纪律，遵守公共秩序，尊重社会公德。
+
+第五十四条　中华人民共和国公民有维护祖国的安全、荣誉和利益的义务，不得有危害祖国的安全、荣誉和利益的行为。
+
+第五十五条　保卫祖国、抵抗侵略是中华人民共和国每一个公民的神圣职责。
+
+依照法律服兵役和参加民兵组织是中华人民共和国公民的光荣义务。
+
+第五十六条　中华人民共和国公民有依照法律纳税的义务。
+
+...（因篇幅限制，此处仅展示部分内容，完整版请参见国家法律法规数据库）...`;
+  } else if (lawName === '刑法') {
+    content = `中华人民共和国刑法
+
+（1979年7月1日第五届全国人民代表大会第二次会议通过　1997年3月14日第八届全国人民代表大会第五次会议修订　根据1998年12月29日第九届全国人民代表大会常务委员会第六次会议通过的《全国人民代表大会常务委员会关于惩治骗购外汇、逃汇和非法买卖外汇犯罪的决定》、1999年12月25日第九届全国人民代表大会常务委员会第十三次会议通过的《中华人民共和国刑法修正案》、2001年8月31日第九届全国人民代表大会常务委员会第二十三次会议通过的《中华人民共和国刑法修正案（二）》、2001年12月29日第九届全国人民代表大会常务委员会第二十五次会议通过的《中华人民共和国刑法修正案（三）》、2002年12月28日第九届全国人民代表大会常务委员会第三十一次会议通过的《中华人民共和国刑法修正案（四）》、2005年2月28日第十届全国人民代表大会常务委员会第十四次会议通过的《中华人民共和国刑法修正案（五）》、2006年6月29日第十届全国人民代表大会常务委员会第二十二次会议通过的《中华人民共和国刑法修正案（六）》、2009年2月28日第十一届全国人民代表大会常务委员会第七次会议通过的《中华人民共和国刑法修正案（七）》、2009年8月27日第十一届全国人民代表大会常务委员会第十次会议通过的《全国人民代表大会常务委员会关于修改部分法律的决定》、2011年2月25日第十一届全国人民代表大会常务委员会第十九次会议通过的《中华人民共和国刑法修正案（八）》、2015年8月29日第十二届全国人民代表大会常务委员会第十六次会议通过的《中华人民共和国刑法修正案（九）》、2017年11月4日第十二届全国人民代表大会常务委员会第三十次会议通过的《中华人民共和国刑法修正案（十）》和2020年12月26日第十三届全国人民代表大会常务委员会第二十四次会议通过的《中华人民共和国刑法修正案（十一）》修正）
+
+目　　录
+
+第一编　总　　则
+第一章　刑法的任务、基本原则和适用范围
+第二章　犯　　罪
+第一节　犯罪和刑事责任
+第二节　犯罪的预备、未遂和中止
+第三节　共同犯罪
+第四节　单位犯罪
+第三章　刑　　罚
+第一节　刑罚的种类
+第二节　管　　制
+第三节　拘　　役
+第四节　有期徒刑、无期徒刑
+第五节　死　　刑
+第六节　罚　　金
+第七节　剥夺政治权利
+第八节　没收财产
+第四章　刑罚的具体运用
+第一节　量　　刑
+第二节　累　　犯
+第三节　自首和立功
+第四节　数罪并罚
+第五节　缓　　刑
+第六节　减　　刑
+第七节　假　　释
+第八节　时　　效
+第五章　其他规定
+
+第二编　分　　则
+第一章　危害国家安全罪
+第二章　危害公共安全罪
+第三章　破坏社会主义市场经济秩序罪
+第一节　生产、销售伪劣商品罪
+第二节　走私罪
+第三节　妨害对公司、企业的管理秩序罪
+第四节　破坏金融管理秩序罪
+第五节　金融诈骗罪
+第六节　危害税收征管罪
+第七节　侵犯知识产权罪
+第八节　扰乱市场秩序罪
+第四章　侵犯公民人身权利、民主权利罪
+第五章　侵犯财产罪
+第六章　妨害社会管理秩序罪
+第一节　扰乱公共秩序罪
+第二节　妨害司法罪
+第三节　妨害国（边）境管理罪
+第四节　妨害文物管理罪
+第五节　危害公共卫生罪
+第六节　破坏环境资源保护罪
+第七节　走私、贩卖、运输、制造毒品罪
+第八节　组织、强迫、引诱、容留、介绍卖淫罪
+第九节　制作、贩卖、传播淫秽物品罪
+第七章　危害国防利益罪
+第八章　贪污贿赂罪
+第九章　渎职罪
+第十章　军人违反职责罪
+
+附　　则
+
+第一编　总　　则
+
+第一章　刑法的任务、基本原则和适用范围
+
+第一条　为了惩罚犯罪，保护人民，根据宪法，结合我国同犯罪作斗争的具体经验及实际情况，制定本法。
+
+第二条　中华人民共和国刑法的任务，是用刑罚同一切犯罪行为作斗争，以保卫国家安全，保卫人民民主专政的政权和社会主义制度，保护国有财产和劳动群众集体所有的财产，保护公民私人所有的财产，保护公民的人身权利、民主权利和其他权利，维护社会秩序、经济秩序，保障社会主义建设事业的顺利进行。
+
+第三条　法律明文规定为犯罪行为的，依照法律定罪处刑；法律没有明文规定为犯罪行为的，不得定罪处刑。
+
+第四条　对任何人犯罪，在适用法律上一律平等。不允许任何人有超越法律的特权。
+
+第五条　刑罚的轻重，应当与犯罪分子所犯罪行和承担的刑事责任相适应。
+
+第六条　凡在中华人民共和国领域内犯罪的，除法律有特别规定的以外，都适用本法。
+
+凡在中华人民共和国船舶或者航空器内犯罪的，也适用本法。
+
+犯罪的行为或者结果有一项发生在中华人民共和国领域内的，就认为是在中华人民共和国领域内犯罪。
+
+第七条　中华人民共和国公民在中华人民共和国领域外犯本法规定之罪的，适用本法，但是按本法规定的最高刑为三年以下有期徒刑的，可以不予追究。
+
+中华人民共和国国家工作人员和军人在中华人民共和国领域外犯本法规定之罪的，适用本法。
+
+第八条　外国人在中华人民共和国领域外对中华人民共和国国家或者公民犯罪，而按本法规定的最低刑为三年以上有期徒刑的，可以适用本法，但是按照犯罪地的法律不受处罚的除外。
+
+第九条　对于中华人民共和国缔结或者参加的国际条约所规定的罪行，中华人民共和国在所承担条约义务的范围内行使刑事管辖权的，适用本法。
+
+第十条　凡在中华人民共和国领域外犯罪，依照本法应当负刑事责任的，虽然经过外国审判，仍然可以依照本法追究，但是在外国已经受过刑罚处罚的，可以免除或者减轻处罚。
+
+第十一条　享有外交特权和豁免权的外国人的刑事责任，通过外交途径解决。
+
+第十二条　中华人民共和国成立以后本法施行以前的行为，如果当时的法律不认为是犯罪的，适用当时的法律；如果当时的法律认为是犯罪的，依照本法总则第四章第八节的规定应当追诉的，按照当时的法律追究刑事责任，但是如果本法不认为是犯罪或者处刑较轻的，适用本法。
+
+本法施行以前，依照当时的法律已经作出的生效判决，继续有效。
+
+...（因篇幅限制，此处仅展示部分内容，完整版请参见国家法律法规数据库）...`;
+  } else if (lawName === '劳动合同法') {
+    content = '第一章 总则\n第一条 为了完善劳动合同制度，明确劳动合同双方当事人的权利和义务，保护劳动者的合法权益，构建和发展和谐稳定的劳动关系，制定本法。\n……\n第八十五条 用人单位有下列情形之一的，由劳动行政部门责令限期支付劳动报酬、加班费或者经济补偿；劳动报酬低于当地最低工资标准的，应当支付其差额部分……\n……\n第九十八条 本法自2008年1月1日起施行。';
+  } else {
+    content = lawName + '示例：\n第一条 为了……（此处展示部分条文，完整版请访问国家法律法规数据库。）';
+  }
+  document.getElementById('lawContent').innerText = content;
+  // 确保刑法、民法典、宪法内容以预格式保留缩进
+  if (lawName === '刑法' || lawName === '民法典' || lawName === '宪法') {
+    document.getElementById('lawContent').style.whiteSpace = 'pre-wrap';
+  }
+}
+function hideLawDetail() {
+  document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('laws').classList.add('active');
+}
+
+// 文书模板详情（新增合伙协议、劳动合同替换、诉讼文书替换）
+function showTemplate(templateName) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('templatePage').classList.add('active');
+  document.getElementById('templateTitle').innerText = templateName + '模板';
+  let content = '';
+  if (templateName === '诉讼文书') {
+    content = `民事起诉状 (劳动争议纠纷)
+
+说明：
+为了方便您更好地参加诉讼，保护您的合法权利，请填写本表。
+1.起诉时需向人民法院提交证明您身份的材料，如身份证复印件、营业执照复印件等。
+2.本表所列内容是您提起诉讼以及人民法院查明案件事实所需，请务必如实填写。
+3.本表所涉内容系针对一般劳动争议纠纷案件，有些内容可能与您的案件无关，您认为与案件无关的项目可以填"无"或不填；对于本表中勾选项可以在对应项打" √ ";您认为另有重要内容需要列明的，可以在本表尾部或者另附页填写。
+
+★特别提示★
+《中华人民共和国民事诉讼法》第十三条第一款规定："民事诉讼应当遵循诚信原则。"
+如果诉讼参加人违反上述规定，进行虚假诉讼、恶意诉讼，人民法院将视违法情形依法追究责任。
+
+当事人信息
+原告
+姓名：刘某某
+性别：男□女☑
+出生日期：1973年XX月XX日
+民族：汉族
+工作单位：北京XX公司 职务：职员
+联系电话：XXXXX
+住所地(户籍所在地):北京市门头沟区XX路XX号
+经常居住地：同住所地
+
+委托诉讼代理人
+有☑
+姓名：汪某某
+单位：XX律师事务所 职务：律师 联系电话：XXXXX
+代理权限：一般授权☑特别授权□
+无□
+
+送达地址(所填信息除书面特别声明更改外，适用于案件一审、二审、再审所有后续程序)及收件人、电话
+地址：北京市大兴区XX路XX号
+收件人：汪某某
+电话：XXXXXX
+
+是否接受电子送达
+是☑方式：短信[XXXXX] 微信[] 传真[] 邮箱[] 其他
+否□
+
+被告
+名称：北京XX公司
+住所地(主要办事机构所在地):北京市平谷区XX路XX号
+注册地/登记地：北京市平谷区XX路XX号
+法定代表人/主要负责人：张某某 职务：董事长
+联系电话：XXXXX 统一社会信用代码：
+类型：有限责任公司☑股份有限公司□上市公司□其他企业法人口
+事业单位□社会团体□基金会□社会服务机构□
+机关法人口农村集体经济组织法人口城镇农村的合作经济组织法人口基层群众性自治组织法人口
+个人独资企业□合伙企业□不具有法人资格的专业服务机构□ 国有□(控股□参股□)民营☑
+
+诉讼请求和依据
+1.是否主张工资支付 是□ 否☑ 明细：
+2.是否主张未签订书面劳动合同双倍工资 是☑否□ 明细：11个月第二倍工资共计33000元
+3.是否主张加班费 是□ 否☑ 明细：
+4.是否主张未休年休假工资 是□ 否☑ 明细：
+5.是否主张未依法缴纳社会保险费造成的经济损失 是□ 否☑ 明细：
+6.是否主张解除劳动合同经济补偿 是☑否□ 明细：3000元
+7.是否主张违法解除劳动合同赔偿金 是□ 否☑ 明细：
+8.本表未列明的其他请求 无
+9.诉讼费用承担 全部诉讼费用由被告承担
+10.是否已经申请诉前保全 是□ 保全法院： 保全文书： 否☑
+
+事实和理由
+1.劳动合同签订情况 未签订书面劳动合同，经劳动仲裁确认存在劳动关系
+2.劳动合同履行情况 刘某某于2019年XX月XX日入职北京XX公司，从事清洁工作，约定每月工资3000元，劳动合同期限1年，但未签订书面劳动合同。1年期满后，刘某某提出续签合同，但北京XX公司不同意。
+3.解除或终止劳动关系情况 合同期满后，因北京XX公司不同意续签合同，2020年XX月XX日，劳动关系终止。
+4.工伤情况 无
+5.劳动仲裁相关情况 刘某某2020年XX月XX日申请劳动仲裁，请求确认其自2019年XX月XX日至2020年XX月XX日与北京XX公司存在劳动关系；北京XX公司向其支付未签书面劳动合同而应支付的第二倍工资33000元；北京XX公司向其支付解除劳动关系经济补偿3000元。北京市XX区劳动人事争议仲裁委员会于2020年XX月XX日作出XXX号裁决书，确认北京XX公司与刘某某在2019年XX月XX日至2020年XX月XX日存在劳动关系，并驳回了刘某某其他仲裁请求。
+6.其他相关情况 无
+7.诉请依据 《中华人民共和国劳动合同法》第7条、第10条、第44条、第46条、第47条、第82条
+8.证据清单(可另附页) 附页
+
+具状人(签字、盖章): 刘某某
+日期：2021年XX月XX日
+
+--------------------------------------------------
+
+民事答辩状 (劳动争议纠纷)
+
+说明：
+为了方便您更好地参加诉讼，保护您的合法权利，请填写本表。
+1.应诉时需向人民法院提交证明您身份的材料，如身份证复印件、营业执照复印件等。
+2.本表所列内容是您参加诉讼以及人民法院查明案件事实所需，请务必如实填写。
+3.本表所涉内容系针对一般劳动争议纠纷案件，有些内容可能与您的案件无关，您认为与案件无关的项目可以填"无"或不填；对于本表中勾选项可以在对应项打" √ ";您认为另有重要内容需要列明的，可以在本表尾部或者另附页填写。
+
+★特别提示★
+《中华人民共和国民事诉讼法》第十三条第一款规定："民事诉讼应当遵循诚信原则。"
+如果诉讼参加人违反上述规定，进行虚假诉讼、恶意诉讼，人民法院将视违法情形依法追究责任。
+
+案号 (2021)京XX民初XX号
+案由 劳动争议
+
+当事人信息
+答辩人
+名称：北京XX公司
+住所地(主要办事机构所在地):北京市平谷区XX路XX号
+注册地/登记地：
+法定代表人/主要负责人：张某某 职务：董事长 联系电话：XXXXX
+统一社会信用代码：XXXXXXXXXX
+类型：有限责任公司☑股份有限公司□上市公司□其他企业法人口
+事业单位□社会团体□基金会□社会服务机构□
+机关法人口农村集体经济组织法人口城镇农村的合作经济组织法人口基层群众性自治组织法人口
+个人独资企业□合伙企业□不具有法人资格的专业服务机构□ 国有□(控股□参股□)民营☑
+
+委托诉讼代理人
+有☑
+姓名：肖某某
+单位：北京XX公司 职务：职员 联系电话：XXXX
+代理权限：一般授权□ 特别授权☑
+无□
+
+送达地址(所填信息除书面特别声明更改外，适用于案件一审、二审、再审所有后续程序)及收件人、电话
+地址：北京市平谷区XX路XX号
+收件人：肖某某
+电话：XXXXX
+
+是否接受电子送达
+是□ 方式：短信[] 微信[] 传真[] 邮箱[] 其他
+否☑
+
+答辩事项和依据 (对原告诉讼请求的确认或者异议)
+1.对工资支付诉请的确认和异议 确认□ 异议□ 事由：
+2.对未签订书面劳动合同双倍工资诉请的确认和异议 确认□ 异议☑ 事由：已通知刘某某签订书面劳动合同，刘某某个人原因没有签订
+3.对加班费诉请的确认和异议 确认□ 异议□ 事由：
+4.对未休年休假工资诉请的确认和异议 确认□ 异议□ 事由：
+5.对未依法缴纳社会保险费造成的经济损失诉请的确认和异议 确认□ 异议□ 事由：
+6.对解除劳动合同经济补偿诉请的确认和异议 确认□ 异议☑ 事由：刘某某严重违反用人单位规章制度，故不予续签劳动合同
+7.对违法解除劳动合同赔偿金诉请的确认和异议 确认□ 异议□ 事由：
+8.对劳动仲裁相关情况的确认和异议 确认☑ 异议□ 事由：
+9.其他事由 无
+10.答辩的依据 《中华人民共和国劳动合同法》第7条、第10条、第44条、第46条、第47条、第82条
+11.证据清单(可另附页) 附页
+
+答辩人(签字、盖章):北京XX公司
+日期：2021年XX月XX日
+
+--------------------------------------------------
+
+民事起诉状 (离婚纠纷)
+
+当事人信息
+原告
+姓名：王XX
+性别：男□女☑
+出生日期：1982年XX月XX日
+民族：汉族
+工作单位：XX公司 职务：职员
+联系电话：XXXXX
+住所地(户籍所在地):北京市XX区XX街道XXX小区XXX号
+经常居住地：北京市XX区XX街道XXX小区XXX号
+
+委托诉讼代理人
+有☑
+姓名：简XX
+单位：XX律师事务所 职务：律师 联系电话：XXXXX
+代理权限：一般授权□ 特别授权☑
+无□
+
+送达地址(所填信息除书面特别声明更改外，适用于案件一审、二审、再审所有后续程序)及收件人、电话
+地址：北京市XX区XX大厦XX室
+收件人：简XX
+电话：XXXXX
+
+是否接受电子送达
+是☑方式：短信[XXXXX] 微信[] 传真[] 邮箱[] 其他
+否□
+
+被告
+姓名：江XX
+性别：男☑女□
+出生日期：1980年XX月XX日
+民族：汉族
+工作单位：XX公司 职务：职员 联系电话：XXXXX
+住所地(户籍所在地):河北省XX市XX区XXX街道XX小区XXX号
+经常居住地：北京市XX区XX街道XXX小区XXX号
+
+诉讼请求和依据
+1.解除婚姻关系 (具体主张)请求准予王XX与江XX离婚
+2.夫妻共同财产 无财产□ 有财产☑ :
+(1)房屋明细：归属：原告☑/被告□/其他□(坐落于北京市丰台区XX小区XX号房屋一处) ;
+(2)汽车明细：归属：原告□/被告☑/其他□(XX牌，牌照号码京XXXXXX小汽车一辆);
+(3)存款明细：归属：原告□/被告□/其他☑(双方存款归各自所有);
+(4)其他(按照上述样式列明)......
+3.夫妻共同债务 无债务☑ 有债务□ (1)债务1: 承担主体：原告□/被告□/其他□(); (2)债务2: 承担主体：原告□/被告□/其他□();
+4.子女直接抚养 无此问题□ 有此问题☑
+子女1:江X 归属：原告☑ /被告□
+子女2: 归属：原告□ /被告□
+5.子女抚养费 无此问题□ 有此问题☑ 抚养费承担主体：原告□ /被告☑ 金额及明细：每月2000元抚养费 支付方式：按月向王XX转账
+6.探望权 无此问题□ 有此问题☑ 探望权行使主体：原告□ /被告☑ 行使方式：江XX每两周探望江X一次，时间、地点可由双方协商。
+7.离婚损害赔偿/离婚经济补偿/离婚经济帮助 无此问题□ 离婚损害赔偿☑ 金额：50000元 离婚经济补偿□ 金额： 离婚经济帮助□ 金额：
+8.诉讼费用 (金额明细)全部诉讼费用由被告承担。
+9.本表未列明的其他请求
+
+约定管辖和诉讼保全
+1.有无仲裁、法院管辖约定 有□合同条款及内容： 无□
+2.是否申请财产保全措施 已经诉前保全：是□ 否□ 保全法院： 保全时间： 申请诉讼保全：是□ 否□
+
+事实和理由
+1.婚姻关系基本情况 结婚时间：2016年XX月XX日 生育子女情况：2019年XX月XX日生育女儿江X 双方生活情况：已经分居1年。 离婚事由：江XX对王XX实施家庭暴力存在重大过错，双方感情确已破裂。 之前有无提起过离婚诉讼：无。
+2.夫妻共同财产情况 王XX除与江XX婚后共同购买的位于北京市丰台区XX小区XX号房屋外无其他房屋居住，需要稳定的生活环境抚养女儿。被告江XX另有住房，位于北京市朝阳区X小区XX号。
+3.夫妻共同债务情况 无
+4.子女直接抚养情况 女儿江X年幼，自出生一直由王XX照顾，江XX存在实施家庭暴力行为，不利于江X的健康成长。
+5.子女抚养费情况 根据江X入学、医疗、生活等方面的日常支出情况，原被告各自承担抚养费的一半，由被告承担2000元/月。
+6.子女探望权情况 从利于孩子成长的角度考虑，江XX每两周探望江X一次，时间、地点可由双方协商。
+7.赔偿/补偿/经济帮助情况 江XX酗酒，对王XX实施家庭暴力，经常因为生活琐事对原告拳脚相加，有公安机关报警记录、王XX就医记录、向妇联报案记录等证实。符合离婚损害赔偿的情形
+8.其他 无
+9.诉请依据 解除婚姻关系：《中华人民共和国民法典》第1079条 子女直接抚养以及抚养费：《中华人民共和国民法典》第1084条、第1085条、第1086条 夫妻共同财产处理：《中华人民共和国民法典》第1087条 离婚损害赔偿：《中华人民共和国民法典》第1091条
+10.证据清单(可另附页) 附页
+
+具状人(签字、盖章):王XX
+日期：2024年XX月XX日`;
+  } else if (templateName === '劳动合同') {
+    content = `劳动合同
+
+甲方（用人单位）
+名称：[    ]
+统一社会信用代码：[    ]
+住所：[    ]
+联系人：[    ]
+联系方式：[    ]
+
+乙方（劳动者）
+姓名：[    ]
+身份证号码：[    ]
+住所：[    ]
+联系人：[    ]
+联系方式：[    ]
+
+本合同各方经平等自愿协商，根据《中华人民共和国民法典》《中华人民共和国劳动合同法》及相关法规，签订本合同以共同遵守。
+
+劳动合同期限
+
+1.  本合同为固定期限的劳动合同。
+
+2.  劳动合同期限：[自    年    月    日起（含当日）至    年    月    日（含当日）止]。
+
+3.  试用期：[  ]个月，自劳动合同期限起始日起算。
+
+甲方有权对乙方进行试用期考核；试用期考核未通过的，视为不符合录用条件。
+
+工作岗位和工作地点
+
+1.  工作岗位：[请填充]。具体工作内容以甲方要求为准。
+
+2.  甲乙双方确认工作地点为[请填充]。
+
+甲方在上述工作地点的其他门店、分支机构有需要时，乙方同意服从甲方安排到其他门店或分支机构工作。
+
+如甲方的经营机构搬迁，乙方同意相应变更工作地点。
+
+乙方同意，根据岗位及甲方的经营需要接受到外地出差的安排。
+
+3.  乙方同意，有下列情况之一时，甲方可将乙方的工作岗位进行调整：
+
+    1.  连续两个月无法完成月任务业绩指标的；
+    2.  因甲方项目撤销或完成、机构调整、部门撤销、岗位合并、设备更新等发生变化，导致不能安排原岗位工作的；
+    3.  员工不论何种原因连续1个月以上未到岗上班，甲方已安排其他员工替换员工原岗位，员工重新到岗上班的；
+    4.  员工的父母、配偶、子女、兄弟姐妹在甲方工作，甲方认为不利于工作需要调岗的；
+    5.  订立劳动合同时所依据的法律、行政法规、行政规章发生变化，导致岗位必须进行调整的。
+    6.  根据乙方的工作表现、身体状况以及甲方生产经营的需要等情况，需要调岗的。
+    7.  绩效考核结果为不合格或不胜任工作的；
+    8.  单位规章制度所规定的应调整岗位的情况的；
+
+乙方同意，薪酬标准参照调整后的岗位薪酬标准进行相应调整。
+
+劳动报酬
+
+1.  月工资标准：[人民币（大写）    元（￥    元）]。
+
+2.  试用期工资标准：按正常工资标准的80%计算，如低于本地最低工资标准，则按最低工资标准计算。
+
+3.  甲方于每月[15]日左右发放上月工资。
+
+乙方同意，如遇客观情况变化、生产经营困难等，甲方可告知乙方适当推迟工资发放时间，但延迟发放不得超过一个月。
+
+4.  乙方同意，甲方有权根据经营情况、甲方规章制度和乙方的工作内容、工作岗位、工作职务、工作地点、工作业绩、工作表现等因素，调整乙方的劳动报酬，但数额不得低于实际工作所在地的最低工资标准。
+
+5.  乙方同意计算加班工资的计算基数按本条第1款约定的月工资标准计算。甲方在该月工资标准之外另外发放的津贴、补贴、奖金等项目不计算在加班工资的计算基数之内。
+
+6.  乙方若对某月工资、奖金或福利待遇有异议，应在发放之日起5日内向甲方书面提出，逾期未提出的，视为对该月工资、奖金及福利待遇没有异议。
+
+工作时间、休息休假
+
+1.  乙方所在岗位执行标准工时制；如所在岗位有申报特殊工时制，则以申报的工时制度为准。
+
+2.  在甲方规定的工作时间之外，乙方因完成工作任务的需要，确需加班的，应当填写加班申请单，经主管领导批准后，方视为加班，享受加班待遇。加班时间以实际发生的时间为准。
+
+劳动保护和劳动条件
+
+甲方为乙方提供符合国家规定的安全、卫生的工作环境和工作条件，为乙方配备必要的安全防护措施，发放必要的劳动保护用品，加强职业危害防护。
+
+劳动纪律
+
+1.  乙方应自觉遵守甲方依法制定的规章制度及劳动纪律。乙方违反劳动纪律，甲方可给予纪律处分，直至解除劳动合同；乙方同意甲方可对乙方履行制度的情况进行检查、督促、考核和奖惩。
+
+2.  乙方有以下情形之一时，属于严重违纪行为，甲方有权解除本合同，并不给予任何经济补偿：
+
+    1.  严重违反甲方规章制度，影响经营、工作秩序的，或给甲方造成经济损失5000元以上的；
+    2.  未经甲方同意在其他单位从事兼职工作；
+    3.  自营、从事经营或投资与甲方竞争企业、竞争性业务或与甲方相关联的业务的；
+    4.  与跟甲方有竞争关系或商业往来关系的个人或组织存在业务关联关系，有可能导致利益冲突的；
+    5.  挪用或侵占甲方财物，或私自接受客户、供应商及利害关系方任何好处及报酬的，无论何种金额及手段；
+    6.  工作中不服从管理，不按领导的正当指令行事的，经再次要求仍不服从的；
+    7.  不服从工作分配擅自离开岗位的；
+    8.  违反甲方的保密条款，泄露甲方商业秘密的；
+    9.  一年内累计旷工5日以上（含5日）或连续旷工3日（含3日）以上的，或一个月内累计迟到或早退五次以上的；
+    10. 在甲方内有任何暴力、胁迫、伤害、赌博或盗窃等不法行为及违反社会公德的行为的；
+    11. 乙方利用甲方客户、业务渠道，表达谋取私利的交易意向、发生谋取私利的交易行为或结果等；
+    12. 乙方行为给甲方信誉造成损害的，包括但不限于由于乙方行为被媒体所报道者；
+    13. 与客户发生肢体冲突或剧烈言辞冲突的，无论何种原因；
+    14. 提供虚假的票据进行报销，或报销用途与实际用途不相符合的，无论金额多少；
+    15. 违反法律法规导致被拘留以上处罚的；
+    16. 其他严重违反劳动纪律行为的。
+
+社会保险和福利待遇
+
+1.  甲方依法为乙方缴纳社会保险。
+
+2.  乙方应当于办理入职手续时提交参加社会保险所必需的真实、合法、完整的资料，如因乙方拒绝、延迟提交资料或提交资料不真实、不完整所导致的一切后果和责任（包括但不限于不能补缴社会保险及乙方无法享受社会保险利益等一切后果和/或责任、补缴费用和/或滞纳金等）应由乙方承担。
+
+3.  甲方为乙方提供的福利待遇按甲方规章制度执行。
+
+劳动合同的变更、解除、中止和终止
+
+1.  经甲乙双方协商一致，本合同可以解除。
+
+2.  乙方有下列情形之一的，甲方可以解除劳动合同：
+
+    1.  在试用期间被证明不符合录用条件的；
+    2.  严重违反用人单位的规章制度或劳动纪律的；
+    3.  严重失职，营私舞弊，给甲方或客户、合作伙伴造成经济损失10000元以上或严重损害甲方声誉的；
+    4.  乙方同时与其他用人单位建立劳动关系，对完成本单位的工作任务造成严重影响，或者经甲方提出，拒不改正的，或构成严重违纪的；
+    5.  乙方以欺诈、胁迫的手段或者乘人之危，使甲方在违背真实意思的情况下订立或者变更合同，致使本合同无效的；如乙方被查实向甲方提供虚假的个人资料或隐瞒个人真实情况的，即视为乙方以欺诈的手段使甲方在违背真实意思的情况下订立本合同；
+    6.  甲方规章制度或国家法律法规政策规定的其他情形。
+
+3.  本合同到期后，如乙方继续在甲方工作而甲方无异议，则视为本劳动合同自动延期一年，并可多次自动延期。但甲方已向乙方发出终止（解除）劳动合同通知或终止（解除）劳动合同证明书，或者确已不再上班时除外。
+
+4.  双方符合依法续签无固定期限劳动合同的条件时，如乙方要求续签无固定期限劳动合同，则乙方应在原劳动合同到期前一个月内，书面向甲方提出申请。未书面提出申请的，视为乙方放弃续签劳动合同。
+
+特别约定
+
+1.  乙方应当保守甲方的商业秘密，包括甲方客户、交易对方及其他甲方对其负有保密义务的主体的商业秘密。
+
+出于对商业秘密保护的需要，劳动合同终止前3个月内，甲方可以变更乙方的岗位。乙方提出解除劳动合同的，甲方可以在乙方提出后正式解除前变更乙方的岗位。
+
+上述保密义务不仅应在乙方在职期间，而且在乙方离职（不论任何原因）后仍应履行。
+
+2.  乙方应当按照双方约定或甲方的相关规章制度，办理工作交接，包括但不限于乙方应依据甲方要求交接经办的业务工作、归还当时占有的甲方财物和文件资料、结清借款以及签署相关工作交接单等其他相关手续。双方同意在签署交接单后方视为办结工作交接。应当支付经济补偿的，甲方在工作交接办理完成时支付。
+
+3.  如经甲方在乙方离职时或提前通知，则乙方在双方关系解除或终止后（无论因何种原因）[24]个月内应遵守竞业限制义务，而无需另外签订专门协议。
+
+如经甲方通知乙方应遵守竞业限制义务，则竞业限制补偿金按乙方离职前12个月平均工资（不足12个月按实际月份月平均工资）的[30%（百分之三十）]的标准按月向乙方支付。但甲方可以随时通知乙方终止竞业限制的履行，同时免除继续支付竞业限制补偿金的义务。
+
+如乙方违反竞业限制义务，应退还甲方支付的全部竞业限制补偿金，并按[乙方离职前一年的全部收入的5倍]为标准向甲方支付违约金，同时仍应继续履行竞业限制义务。
+
+声明与确认
+
+1.  双方确认，乙方在工作期间所产生的工作成果（包括但不限于技术资料，开发、总结的概念、创意、文件及所出版的书籍，工作日志、培训材料、操作手册、音像资料、直播演绎等），无论何种形态（文字、图画、音像等），其全部知识产权均属于甲方享有。
+
+该工作成果如使用了乙方姓名、肖像、形象、声音等人身权利的，视为乙方无偿、永久的许可甲方使用该权利。
+
+2.  乙方确认，甲方已如实告知乙方工作内容、工作条件、用人要求、工作地点、职业危害、安全生产状况、劳动报酬、社会保险等情况，并已将工作过程中可能产生的职业病危害及其后果、职业病防护措施和待遇以及乙方要求了解的其他情况告知乙方。
+
+3.  乙方确认，其向甲方提供或填写的入职登记表、履历上的信息完全真实有效。乙方与其他用人单位不存在劳动关系，亦不受其他用人单位竞业限制义务的限制。
+
+4.  乙方确认已认真阅读、理解甲方制定的规章制度，并同意遵守执行。此处的规章制度包括《员工手册》等长期的综合的制度，也包括甲方依照法律程序订立且以书面或内部电子网络等方式向乙方公示的通知、须知、办法和细则等单项规章制度，其中包括但不限于《员工手册》、职位说明、各类行为准则等。
+
+甲方规章制度将通过下述方式公示乙方：（a）书面传阅；（b）电子邮件送达；（c）甲方办公网络或甲方网页；（d）其他合理可行的方式发布给全体员工或符合该规章制度适用范围的相关员工，乙方确认将随时查收。
+
+5.  本合同生效前双方已订立的劳动合同自本合同生效之日起失效。
+
+6.  试用期
+
+    1.  本合同约定之岗位或工种，乙方已知悉其录用条件，包括规章制度里规定的录用条件、岗位录用条件及下列录用条件：
+        1.  按甲方要求提交入职材料，包括办理社会保险的全部材料，同意将社保关系转入；
+        2.  工作能力、表现胜任甲方安排的工作和甲方规定的岗位职责；
+        3.  未患有精神病或按国家法律法规应禁止工作的传染病，且身体健康条件符合工作岗位要求；
+        4.  与原用人单位已依法解除或终止劳动关系；
+        5.  与原用人单位不存在竞业限制约定或不在限制范围之内；
+        6.  未通缉在案或者被取保候审、监视居住；
+        7.  按本合同约定时间到岗；
+        8.  入职后不得拒绝按甲方制定的劳动合同版本签订劳动合同，不得拒绝缴纳社会保险；
+        9.  不应隐瞒曾经受过法律处罚或者纪律处分的事实；
+        10. 试用期内请假不得超过三天，迟到不得超过五次，不得有旷工；
+        11. 具备本岗位所要求的各项技能的；
+        12. 试用期考核应合格；
+        13. 完成试用期内工作任务：掌握岗位工作技能，完成领导交待的任务。
+
+    2.  乙方认可甲方有权对其进行试用期考核，考核可能有相当程度的主观因素。如有异议，仍以甲方的考核结论为准。
+
+    3.  试用期内乙方病假时间累计超过3天时，甲方有权通知乙方相应顺延试用期。
+
+违反劳动合同的责任
+
+1.  乙方违反法律法规及本合同约定解除劳动合同，或者违反劳动纪律、规章制度的，或者违反本合同约定的其他义务的，乙方应当赔偿由此造成的全部损失，包括但不限于：
+
+    1.  甲方为其支付的培训和招收录用费用；
+    2.  对甲方生产经营工作造成的直接或间接、有形或无形的经济损失；
+    3.  诉讼费用、律师费用、调查费用、公证费用等；
+    4.  本合同约定或规章制度规定的其他赔偿费用。
+
+2.  按前述约定乙方需对甲方负赔偿责任的，甲方可在乙方工资或经济补偿金中扣除。工资、经济补偿尚不足以弥补损失的，乙方仍需赔偿损失。
+
+合同联系方式
+
+1.  各方同意以本合同及乙方向单位提供的员工登记信息中列明的联系方式（包括电子邮件）作为指定联系方式，同时作为有效司法送达地址。
+
+2.  乙方同时授权，在其处于联系障碍状态（包括但不限于乙方因病住院、丧失人身自由等情形）时，乙方提供的"紧急联系人"作为乙方的受委托人，该受委托人享有代为进行和解、调解、代领、接受相关通知以及代为变更、解除、终止劳动关系的权利。
+
+附则
+
+1.  本合同一式二份，合同各方各执一份。各份合同文本具有同等法律效力。
+
+2.  本合同未尽事宜，按照甲方依法制定的规章制度执行；如果甲方的规章制度未作规定，则按国家有关法律法规政策执行。
+
+3.  本合同包含如下附件：[请填充]
+
+上述附件是本合同的一部分，具有与本合同同等的法律效力。
+
+4.  双方发生劳动争议的，由甲方所在地法院及劳动仲裁机构管辖。
+
+5.  本合同经各方签名或盖章后生效。
+
+（以下无合同正文）
+
+签订时间：    年    月    日
+
+甲方（盖章）：
+法定代表人或授权代表：
+
+乙方（签名）：`;
+  } else if (templateName === '合伙协议') {
+    content = `合伙协议
+
+为维护合伙企业、合伙人的合法权益，规范合伙企业的组织和行为，根据《中华人民共和国合伙企业法》（以下简称《合伙企业法》）和《中华人民共和国合伙企业登记管理办法》及有关法律、法规规定，经全体合伙人协商一致，制定本协议。
+
+第1条 合伙企业情况
+
+1.1 本合伙企业是由普通合伙人和有限合伙人共同组成的有限合伙企业。普通合伙人对合伙企业的债务承担无限连带责任，有限合伙人以其认缴的出资额为限对合伙企业债务承担责任。
+
+1.2 合伙企业名称：[        ]合伙企业（有限合伙）。
+
+1.3 合伙企业经营场所：[        ]
+
+1.4 本合伙企业在[        ]市场监督管理局登记注册，企业的经营期限为[    ]年。
+详细约定从 年 月 日到 年 月 日。
+
+1.5 合伙企业的目的：为了保护全体合伙人的合伙权益，使本合伙企业获得最佳经济效益。
+
+1.6 本合伙企业的经营范围为：[        ]（以登记机关核准为准）。
+
+1.7 合伙企业由[    ]个合伙人共同出资设立, 合伙企业实行注册资本认缴登记制，注册资本人民币（大写）[        ]元（￥[    ]）。其中，普通合伙人[    ]个，有限合伙人[    ]个。
+
+普通合伙人：[        ]
+家庭地址：[        ]
+以货币方式认缴出资人民币（大写）[        ]元（￥[    ]），该出资额占本合伙企业出资比例的[    ]%。其中：首期出资[    ]万元，将于[    ]年[    ]月[    ]日到位；余额万元将于[    ]年[    ]月[    ]日到位。
+
+有限合伙人：[        ]
+家庭地址：[        ]
+以货币方式认缴出资人民币（大写）[        ]元（￥[    ]），该出资额占本合伙企业出资比例的[    ]%。该出资将于[    ]年[    ]月[    ]日全部到位。
+
+第2条 企业利润分配、亏损分担方式
+
+2.1 企业的利润和亏损，由合伙人依照认缴出资比例分配和分担。
+
+2.2 企业每年进行一次利润分配或亏损分担。时间为每年的三月。
+
+2.3 合伙财产不足清偿合伙债务时，普通合伙人对合伙企业承担连带责任，有限合伙人以其认缴的出资额为限对合伙企业债务承担责任。
+请明确先弥补前期亏损，再按比例分配给各合伙人；亏损在确认后，各合伙人需在 15 日内按比例补足相应资金。
+
+第3条 合伙企业事务执行
+
+3.1 全体合伙人共同委托普通合伙人为企业执行合伙事务的合伙人，其他合伙人不再执行合伙企业事务。
+
+3.2 执行合伙企业事务的合伙人对外代表企业。
+
+3.3 不参加执行合伙事务的合伙人有权监督执行事务合伙人，检查其执行合伙事务的情况。
+
+3.4 根据合伙人要求，执行事务合伙人应向其他合伙人报告事务执行情况以及合伙企业的经营状况和财务状况。
+
+3.5 执行事务合伙人执行合伙企业事务时产生的收益归合伙企业，所产生费用和亏损由合伙企业承担。
+
+3.6 被委托执行合伙事务的合伙人不按照合伙协议或者全体合伙人的决定执行事务的，其他合伙人可以决定撤消委托。
+
+3.7 合伙人对合伙企业有关事项作出决议，实行合伙人一人一票表决权；除法律、法规、规章和本协议另有规定以外，决议应经全体合伙人过半数表决通过；但下列事项应当经全体合伙人一致同意。
+
+（1）改变合伙企业名称；
+（2）改变合伙企业经营范围、主要经营场所的地点；
+（3）处分合伙企业的不动产；
+（4）转让或者处分合伙企业的知识产权和其他财产权利；
+增加离婚情形：因合伙人离婚等原因需分割财产份额的，受让方需符合入伙条件，且需经其他合伙人同意，否则转让方需提前 30 日通知其他合伙人，由其他合伙人按合理价格购买该份额。
+（5）以合伙企业名义为他人提供担保；
+（6）聘任合伙人以外的人担任合伙企业经营管理人员；
+（7）修改合伙协议内容。
+
+3.8 合伙人不得自营或者同他人合伙经营与本企业相竞争的业务，损害本企业利益，有限合伙人除外。
+
+3.9 有限合伙人未经授权以有限合伙企业名义与他人进行交易，给有限合伙企业或者其他合伙人造成损失的，该有限合伙人承担赔偿责任。
+
+第4条 执行事务合伙人的条件和选择程序
+
+执行事务合伙人由全体合伙人共同委托产生，并且需要具备以下条件；
+4.1 充分执行本合伙协议；
+4.2 对全体合伙人负责；
+4.3 接受全体合伙人委托，对企业的经营负责；
+4.4 有限合伙人不执行合伙事务。
+
+第5条 执行事务合伙人权限和违约处理办法
+
+5.1 执行事务合伙人的权限：执行事务合伙人对外代表企业，对全体合伙人负责：
+5.1.1 负责召集合伙人会议，并向合伙人报告工作；
+5.1.2 执行全体合伙人的决议；
+5.1.3 主持企业的生产经营管理工作，决定企业的经营计划和投资方案；
+5.1.4 指定企业的年度财务预算方案、决算方案；
+5.1.5 制定企业的基本管理制度，拟订管理机构设置方案；
+5.1.6 全体合伙人委托的其他职权。
+
+5.2 违约处理办法：执行事务合伙人因故意或者重大过失造成合伙企业债务的，由执行事务合伙人承担赔偿责任。
+
+第6条 执行事务合伙人的除名条件和更换程序
+
+6.1 被委托执行合伙企业事务的合伙人不按照合伙协议或者全体合伙人的决定执行事务的，其他合伙人可以决定撤销委托，对执行事务合伙人除名或予以更换。
+
+第7条 合伙人的入伙、退伙
+
+7.1 有限合伙人入伙、退伙的条件、程序以及相关责任，按照《合伙企业法》第四十三条至五十四条的有关规定执行。
+请明确入伙、退货的条件。
+
+第8条 有限合伙人和普通合伙人的相互转变程序
+
+8.1 经全体合伙人同意，有限合伙人和普通合伙人可以相互转变。
+
+第9条 争议解决办法
+
+9.1 合伙人履行合伙协议发生争议，本着友好协商的原则，由全体合伙人进行协商、协调解决；合伙人不愿通过协商、协调解决或者协商、协调不成的，向仲裁机构申请仲裁，或者直接依照相关法律、法规向人民法院进行起诉。
+改为：诉讼优先
+
+第10条 解散与清算
+
+10.1 本合伙企业出现《合伙企业法》第85条规定的情形之一的，应当解散，由清算人进行清算。
+
+10.2 清算人由全体合伙人担任；经全体合伙人过半数同意，可以自合伙企业解散事由出现后十五日内指定一个或者数个合伙人，或者委托第三人，担任清算人。
+
+10.3 自合伙企业解散事由出现之日起十五日内未确定清算人的，合伙人或者其他利害关系人可以申请人民法院指定清算人。
+
+10.4 清算期间，合伙企业存续，不得开展与清算无关的经营活动。
+
+10.5 合伙企业财产在支付清算费用和职工工资、社会保险费用、法定补偿金以及缴纳所欠税款、清偿债务后的剩余财产，依照本协议第九条第一款的规定进行分配。
+
+10.6 清算结束后，清算人应当编制清算报告，经全体合伙人签字、盖章后，在15日内向企业登记机关报送清算报告，申请办理合伙企业注销登记。
+
+第11条 违约责任
+
+11.1 合伙人违反本合伙协议的，依法承担违约责任，对合伙企业造成财产和名誉损失的，承担赔偿责任。
+约定具体违约情形与违约金。
+
+第12条 其他事项
+
+12.1 本企业的登记事项以本合伙企业的登记机关核定为准。
+
+12.2 本协议未详尽的，依据《合伙企业法》和相关法律、法规、规章执行。
+
+12.3 本协议中的各项条款与法律、法规、规章不符的，以法律、法规、规章的规定为准。
+
+12.4 本协议由全体合伙人共同订立，在企业注册后生效
+
+12.5 本协议自生效之日起，对合伙企业及合伙人均具有约束力。
+
+12.6 本协议原件每个合伙人各持一份，企业留存一份，报本合伙企业的登记机关一份。
+
+签署时间：    年    月    日
+
+全体合伙人签字、盖章：`;
+  } else if (templateName === '借条') {
+    content = '借条\n\n今借到 [出借人姓名] 人民币 [金额] 元（大写：），借款期限 [ ] 个月，于 [日期] 前还清。年利率 [ ]%。\n\n借款人：[姓名]\n身份证号：[号码]\n日期：2026年 月 日';
+  } else if (templateName === '离婚协议') {
+    content = '离婚协议书\n\n男方：[姓名]，身份证号：\n女方：[姓名]，身份证号：\n\n双方于[日期]登记结婚，现因[原因]自愿离婚，协议如下：\n一、子女抚养：……\n二、财产分割：……\n三、债务处理：……\n\n男方签字：\n女方签字：\n日期：';
+  } else if (templateName === '遗嘱') {
+    content = '遗嘱\n\n立遗嘱人：[姓名]，身份证号：\n\n本人意识清楚，自愿订立遗嘱如下：\n一、财产清单：……\n二、分配方案：……\n三、本遗嘱一式[ ]份。\n\n立遗嘱人：[签名]\n见证人：[签名]\n日期：';
+  }
+  document.getElementById('templateContent').innerText = content;
+}
+function hideTemplate() {
+  document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('paper').classList.add('active');
+}
+
+// 我的页面登录/退出/打卡/反馈
+let loggedIn = false;
+let score = 0, days = 0;
+function login() {
+  loggedIn = true;
+  document.getElementById('userNameDisplay').innerText = '法视界用户';
+  document.getElementById('loginBtn').style.display = 'none';
+  score = 280; days = 7;
+  updateScore();
+  alert('登录成功');
+}
+function logout() {
+  loggedIn = false;
+  document.getElementById('userNameDisplay').innerText = '未登录';
+  document.getElementById('loginBtn').style.display = 'block';
+  score = 0; days = 0;
+  updateScore();
+  alert('您已退出登录');
+  go('user');
+}
+function checkIn() {
+  if (!loggedIn) { alert('请先登录'); return; }
+  score += 10;
+  days += 1;
+  updateScore();
+  alert('打卡成功！获得10积分');
+}
+function updateScore() {
+  document.getElementById('score').innerText = score;
+  document.getElementById('days').innerText = days + ' 天';
+}
+updateScore();
+
+// 意见反馈
+function showFeedback() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('feedbackPage').classList.add('active');
+}
+function hideFeedback() {
+  document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('user').classList.add('active');
+}
+function submitFeedback() {
+  let text = document.getElementById('feedbackText').value.trim();
+  if (text === '') {
+    alert('请先输入反馈内容');
+    return;
+  }
+  alert('感谢反馈，我们尽快处理');
+  document.getElementById('feedbackText').value = '';
+  hideFeedback();
+}
+</script>
+</body>
+</html>
