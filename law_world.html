@@ -974,51 +974,56 @@ async function sendChat() {
   input.value = '';
   body.scrollTop = body.scrollHeight;
 
-  // 显示"正在输入"
-  let typingDiv = document.createElement('div');
-  typingDiv.className = 'msg bot';
-  typingDiv.id = 'typing';
-  typingDiv.textContent = '正在思考...';
-  body.appendChild(typingDiv);
+  // 创建AI消息框（空的，准备流式填充）
+  let aiMsgDiv = document.createElement('div');
+  aiMsgDiv.className = 'msg bot';
+  aiMsgDiv.innerHTML = '<span class="cursor">▊</span>';  // 光标
+  body.appendChild(aiMsgDiv);
   body.scrollTop = body.scrollHeight;
 
-  try {
-    // 调用本地后端服务（不再是直接调用DeepSeek）
-    const response = await fetch('http://localhost:3000/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        message: val
-      })
-    });
+  // 使用 EventSource 接收流式数据
+  const encodedMsg = encodeURIComponent(val);
+  const eventSource = new EventSource(`https://law-ai-server.onrender.com/api/chat/stream?message=${encodedMsg}`);
 
-    // 移除"正在输入"
-    let typing = document.getElementById('typing');
-    if (typing) typing.remove();
+  let fullText = '';
+  let hasError = false;
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.details || data.error || '请求失败');
+  eventSource.onmessage = (event) => {
+    if (event.data === '[DONE]') {
+      eventSource.close();
+      // 移除光标
+      aiMsgDiv.innerHTML = marked.parse(fullText);
+      return;
     }
 
-    // 显示AI回复
-    body.innerHTML += `<div class="msg bot">${marked.parse(data.reply)}</div>`;
-    body.scrollTop = body.scrollHeight;
+    try {
+      const data = JSON.parse(event.data);
 
-  } catch (error) {
-    console.error('错误详情:', error);
+      if (data.error) {
+        hasError = true;
+        aiMsgDiv.innerHTML = `❌ ${data.error}`;
+        eventSource.close();
+        return;
+      }
 
-    // 移除"正在输入"
-    let typing = document.getElementById('typing');
-    if (typing) typing.remove();
+      if (data.content) {
+        fullText += data.content;
+        // 实时更新显示（带光标）
+        aiMsgDiv.innerHTML = marked.parse(fullText) + '<span class="cursor">▊</span>';
+        body.scrollTop = body.scrollHeight;
+      }
+    } catch (e) {
+      console.error('Parse error:', e);
+    }
+  };
 
-    // 显示错误信息
-    body.innerHTML += `<div class="msg bot">❌ 服务暂时不可用<br><small>${error.message}</small></div>`;
-    body.scrollTop = body.scrollHeight;
-  }
+  eventSource.onerror = (err) => {
+    console.error('SSE error:', err);
+    if (!hasError) {
+      aiMsgDiv.innerHTML = '❌ 连接失败，请重试';
+    }
+    eventSource.close();
+  };
 }
 
 // 法律法规详情（已插入民法典、刑法完整内容）
