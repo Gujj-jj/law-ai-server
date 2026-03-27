@@ -974,14 +974,14 @@ async function sendChat() {
   input.value = '';
   body.scrollTop = body.scrollHeight;
 
-  // 创建AI消息框（空的，准备流式填充）
+  // 创建AI消息框
   let aiMsgDiv = document.createElement('div');
   aiMsgDiv.className = 'msg bot';
-  aiMsgDiv.innerHTML = '<span class="cursor">▊</span>';  // 光标
+  aiMsgDiv.innerHTML = '<span class="cursor">▊</span>';
   body.appendChild(aiMsgDiv);
   body.scrollTop = body.scrollHeight;
 
-  // 使用 EventSource 接收流式数据
+  // ✅ EventSource GET 请求
   const encodedMsg = encodeURIComponent(val);
   const eventSource = new EventSource(`https://law-ai-server.onrender.com/api/chat/stream?message=${encodedMsg}`);
 
@@ -991,7 +991,6 @@ async function sendChat() {
   eventSource.onmessage = (event) => {
     if (event.data === '[DONE]') {
       eventSource.close();
-      // 移除光标
       aiMsgDiv.innerHTML = marked.parse(fullText);
       return;
     }
@@ -1008,7 +1007,6 @@ async function sendChat() {
 
       if (data.content) {
         fullText += data.content;
-        // 实时更新显示（带光标）
         aiMsgDiv.innerHTML = marked.parse(fullText) + '<span class="cursor">▊</span>';
         body.scrollTop = body.scrollHeight;
       }
@@ -1025,7 +1023,6 @@ async function sendChat() {
     eventSource.close();
   };
 }
-
 // 法律法规详情（已插入民法典、刑法完整内容）
 function showLawDetail(lawName) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
